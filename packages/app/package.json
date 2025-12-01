@@ -1,0 +1,25 @@
+{
+  "name": "@e-chan1007/uec-map-app",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@e-chan1007/uec-map-sdk": "workspace:*",
+    "@indoorequal/vue-maplibre-gl": "^8.4.2",
+    "maplibre-gl": "^5.13.0",
+    "nuxt": "^4.2.1",
+    "nuxt-maplibre": "1.2.0",
+    "vue": "^3.5.25",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "pmtiles": "^4.3.0",
+    "sass-embedded": "^1.93.3"
+  }
+}

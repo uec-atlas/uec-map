@@ -1,0 +1,34 @@
+{
+  "name": "@e-chan1007/uec-map-sdk",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/main.js",
+  "module": "./dist/main.mjs",
+  "types": "./dist/main.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "import": "./dist/main.mjs",
+      "require": "./dist/main.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "scripts": {
+    "dev": "vite build --watch --mode esm",
+    "build:esm": "vite build --mode esm",
+    "build:umd": "vite build --mode umd",
+    "build": "pnpm build:esm && pnpm build:umd"
+  },
+  "peerDependencies": {
+    "maplibre-gl": "^5"
+  },
+  "dependencies": {
+    "pmtiles": "^4.3.0"
+  },
+  "devDependencies": {
+    "maplibre-gl": "^5.13.0",
+    "vite": "^7.2.6",
+    "vite-plugin-dts": "^4.5.4",
+    "@types/node": "^24.10.1"
+  }
+}

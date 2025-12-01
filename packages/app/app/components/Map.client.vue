@@ -13,41 +13,27 @@
   </MglMap>
 </template>
 
-<style lang="scss">
-@import "maplibre-gl/dist/maplibre-gl.css";
-</style>
-
 <script setup lang="ts">
 import type { StyleSpecification } from "maplibre-gl";
 import maplibregl from 'maplibre-gl';
-import { PMTiles, Protocol } from 'pmtiles';
+import "maplibre-gl/dist/maplibre-gl.css";
+import { buildMapStyle, setupTiles, UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
 
-const protocol = new Protocol();
-maplibregl.addProtocol("pmtiles", protocol.tile);
-
-const absoluteUrl = new URL('/map.pmtiles', window.location.href).href;
-const tile = new PMTiles(absoluteUrl);
-protocol.add(tile);
-await tile.getHeader();
+setupTiles(maplibregl);
 
 const center = [139.544333, 35.655601] as [number, number];
 const zoom = 16;
 
 const floor = ref(1);
 
-const style = computed<StyleSpecification>(() => ( {
+const style = computed<StyleSpecification>(() => buildMapStyle ( {
   version: 8,
-  sources: {
-    "uec-map": {
-      type: "vector",
-      url: `pmtiles://${absoluteUrl}`,
-    },
-  },
+  sources: {},
   layers: [
     {
       id: "areas",
       type: "fill",
-      source: "uec-map",
+      source: UEC_MAP_SOURCE_ID,
       "source-layer": "areas",
       minzoom: 0,
       maxzoom: 22,
@@ -58,7 +44,7 @@ const style = computed<StyleSpecification>(() => ( {
     {
       id: "buildings",
       type: "fill",
-      source: "uec-map",
+      source: UEC_MAP_SOURCE_ID,
       "source-layer": "buildings",
       minzoom: 0,
       maxzoom: 22,
@@ -67,43 +53,42 @@ const style = computed<StyleSpecification>(() => ( {
         "fill-opacity": ["step", ["zoom"], 1, 19, 0.2]
       },
     },
-    // {
-    //   id: "paths",
-    //   type: "line",
-    //   source: "uec-map",
-    //   "source-layer": "paths",
-    //   minzoom: 0,
-    //   maxzoom: 22,
-    //   paint: {
-    //     "line-color": "#333333",
-    //     "line-width": 2,
-    //   },
-    // },
+    {
+      id: "paths",
+      type: "line",
+      source: UEC_MAP_SOURCE_ID,
+      "source-layer": "paths",
+      filter: [">=", ["get", "weight"], 2],
+      minzoom: 0,
+      maxzoom: 22,
+      paint: {
+        "line-color": "#333333",
+        "line-width": ["get", "weight"],
+      },
+    },
     {
       "id": "buildings-label",
       "type": "symbol",
-      "source": "uec-map",
-      "source-layer": "building_labels",
+      "source": UEC_MAP_SOURCE_ID,
+      "source-layer": "buildings_label",
       minzoom: 15,
       maxzoom: 19,
       "layout": {
         "text-field": ["get", "name"],
         "text-size": 16,
-        "text-font": ["Noto Sans JP Bold"],
         "text-allow-overlap": false,
-        "text-ignore-placement": false,
-        "symbol-placement": "point"
+        "text-ignore-placement": false
       },
       "paint": {
-        "text-color": "#FFFFFF",
-        "text-halo-color": "#000000",
-        "text-halo-width": 1,
+        "text-color": "#000000",
+        "text-halo-color": "#FFFFFF",
+        "text-halo-width": 2
       },
     },
     {
       id: "floors",
       type: "fill",
-      source: "uec-map",
+      source: UEC_MAP_SOURCE_ID,
       "source-layer": "floors",
       minzoom: 19,
       maxzoom: 22,
@@ -131,19 +116,22 @@ const style = computed<StyleSpecification>(() => ( {
     {
       id: "floors-label",
       type: "symbol",
-      source: "uec-map",
-      "source-layer": "floors",
+      source: UEC_MAP_SOURCE_ID,
+      "source-layer": "floors_label",
       minzoom: 19,
       maxzoom: 22,
       filter: ["all", ["==", ["get", "floor"], ["to-number", floor.value]], ["!=", ["get", "type"], "elevator"]],
       layout: {
         "text-field": ["get", "name"],
         "text-size": 16,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "symbol-placement": "point"
       },
       paint: {
         "text-color": "#000000",
         "text-halo-color": "#FFFFFF",
-        "text-halo-width": 1,
+        "text-halo-width": 2,
       },
     }
   ],

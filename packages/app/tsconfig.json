@@ -14,5 +14,10 @@
     {
       "path": "./.nuxt/tsconfig.node.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@e-chan1007/uec-map-sdk": ["../sdk/src/main.ts"]
+    }
+  }
 }
