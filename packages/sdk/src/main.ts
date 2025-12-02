@@ -63,8 +63,6 @@ export function buildMapStyle(
       ],
     };
   }
-
-  // 3. ユーザースタイルがある場合、そこにソースを注入して返す
   return {
     ...userStyle,
     sources: {

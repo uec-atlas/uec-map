@@ -32,6 +32,27 @@ export const useMapStyle = (
       },
     ];
 
+    const areaLabelLayers: LayerSpecification[] = [
+      {
+        id: "areas_label",
+        type: "symbol",
+        source: UEC_MAP_SOURCE_ID,
+        "source-layer": "areas_label",
+        minzoom: 0,
+        maxzoom: 17,
+        layout: {
+          "text-field": ["get", "name"],
+          "text-size": 16,
+          "text-max-width": 12,
+        },
+        paint: {
+          "text-color": "#000000",
+          "text-halo-color": "#FFFFFF",
+          "text-halo-width": 2,
+        },
+      },
+    ];
+
     const pathLayers: LayerSpecification[] = [
       {
         id: "paths_outline",
@@ -105,17 +126,24 @@ export const useMapStyle = (
             "#43acdd",
             /* default */ "#888888",
           ],
-          "fill-opacity": ["step", ["zoom"], 1, 19, 0.15],
+          "fill-opacity": [
+            "step",
+            ["zoom"],
+            ["match", ["get", "type"], "utility", 0.5, 1],
+            19,
+            0.15,
+          ],
         },
       },
     ];
+
     const buildingIconlayers: LayerSpecification[] = [
       {
         id: "buildings-icon-shadow",
         type: "circle",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
-        minzoom: 15,
+        minzoom: 17,
         maxzoom: 19,
         paint: {
           "circle-radius": 20,
@@ -129,7 +157,7 @@ export const useMapStyle = (
         type: "circle",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
-        minzoom: 15,
+        minzoom: 17,
         maxzoom: 19,
         paint: {
           "circle-radius": 16,
@@ -143,12 +171,14 @@ export const useMapStyle = (
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
-        minzoom: 15,
+        minzoom: 17,
         maxzoom: 19,
         layout: {
           "icon-image": MAP_ICONS["material-symbols:source-environment"],
           "icon-padding": 0,
           "text-padding": 0,
+          "text-allow-overlap": true,
+          "icon-allow-overlap": true,
           "text-field": ["get", "name"],
           "text-size": 16,
           "text-max-width": 16,
@@ -166,12 +196,10 @@ export const useMapStyle = (
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
-        minzoom: 17,
+        minzoom: 17.5,
         maxzoom: 19,
         layout: {
           "text-padding": 0,
-          "text-allow-overlap": true,
-          "text-ignore-placement": true,
           "text-field": ["get", "altname"],
           "text-size": 12,
           "text-anchor": "top",
@@ -385,6 +413,7 @@ export const useMapStyle = (
         ...extrusionLayers,
         ...buildingIconlayers,
         ...floorLayers,
+        ...areaLabelLayers,
       ],
     });
   });
