@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const __dirname = resolve();
 
@@ -27,6 +28,16 @@ export default defineConfig(({ mode }) => {
       },
     },
     assetsInclude: ["**/*.pmtiles"],
-    plugins: [!isUMD && dts({ insertTypesEntry: true })],
+    plugins: [
+      !isUMD && dts({ insertTypesEntry: true }),
+      viteStaticCopy({
+        targets: [
+          {
+            src: "src/assets/*.pmtiles",
+            dest: "assets"
+          }
+        ]
+      })
+    ],
   };
 });

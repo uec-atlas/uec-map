@@ -2,8 +2,10 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["nuxt-maplibre"],
+  modules: ["nuxt-maplibre", ["unplugin-icons/nuxt", {
+    autoInstall: true,
+  }]],
   vite: {
-    assetsInclude: ["**/*.pmtiles"],
+    assetsInclude: ["**/*.pmtiles"]
   },
 });
