@@ -1,5 +1,5 @@
 <template>
-  <MglMap :map-style="style" :center="center" :zoom="zoom">
+  <MglMap :map-style="style" :center="center" :zoom="zoom" :max-zoom="22">
     <MglNavigationControl/>
     <MglCustomControl>
       <button @click="floor = Math.min(floor + 1, 4)">▲</button>

@@ -36,7 +36,7 @@ export function buildMapStyle(
   const pmtilesSource: SourceSpecification = {
     type: "vector",
     url: `pmtiles://${bundledPMTilesUrl}`,
-    attribution: "(C) e-chan1007",
+    attribution: "&copy; e-chan1007",
   };
 
   if (!userStyle) {

@@ -1,20 +1,34 @@
 import RawCheckbook from "~icons/material-symbols/checkbook?raw";
+import RawCoPresent from "~icons/material-symbols/co-present?raw";
+import RawDomain from "~icons/material-symbols/domain?raw";
 import RawElevator from "~icons/material-symbols/elevator-outline?raw";
-import RawFemale from "~icons/map/female?raw";
-import RawMale from "~icons/map/male?raw";
-import RawSchool from "~icons/map/school?raw";
-import RawSourceEnvironment from "~icons/material-symbols/source-environment?raw";
+import RawFountain from "~icons/mdi/fountain?raw";
+import RawGate from "~icons/material-symbols/gate?raw";
+import RawGroups from "~icons/material-symbols/groups?raw";
+import RawHome from "~icons/material-symbols/home?raw";
+import RawMan from "~icons/material-symbols/man?raw";
+import RawRoomPreferences from "~icons/material-symbols/room-preferences?raw";
+import RawWoman from "~icons/material-symbols/woman?raw";
 import RawStairs from "~icons/material-symbols/stairs-2?raw";
+import RawSquare from "~icons/material-symbols/square?raw";
+import RawTownHall from "~icons/mdi/town-hall?raw";
 import RawToilet from "~icons/map/toilet?raw";
 
 const mapIcons = {
   "material-symbols:checkbook": RawCheckbook,
+  "material-symbols:co-present": RawCoPresent,
+  "material-symbols:domain": RawDomain,
   "material-symbols:elevator-outline": RawElevator,
+  "mdi:fountain": RawFountain,
+  "material-symbols:gate": RawGate,
+  "material-symbols:groups": RawGroups,
+  "material-symbols:home": RawHome,
+  "material-symbols:room-preferences": RawRoomPreferences,
   "material-symbols:stairs-2": RawStairs,
-  "material-symbols:source-environment": RawSourceEnvironment,
-  "map:female": RawFemale,
-  "map:male": RawMale,
-  "map:school": RawSchool,
+  "material-symbols:square": RawSquare,
+  "mdi:town-hall": RawTownHall,
+  "material-symbols:woman": RawWoman,
+  "material-symbols:man": RawMan,
   "map:toilet": RawToilet,
 } as const;
 
@@ -30,7 +44,7 @@ function loadSvgImage(svgString: string): Promise<HTMLImageElement> {
     );
   }
   return new Promise((resolve, reject) => {
-    const img = new Image(24, 24);
+    const img = new Image(28, 28);
     const svgBlob = new Blob([svgString], {
       type: "image/svg+xml;charset=utf-8",
     });
