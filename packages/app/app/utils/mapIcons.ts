@@ -12,6 +12,7 @@ import RawWoman from "~icons/material-symbols/woman?raw";
 import RawStairs from "~icons/material-symbols/stairs-2?raw";
 import RawSquare from "~icons/material-symbols/square?raw";
 import RawTownHall from "~icons/mdi/town-hall?raw";
+import RawTriangle from "~icons/mdi/triangle?raw";
 import RawToilet from "~icons/map/toilet?raw";
 
 const mapIcons = {
@@ -27,6 +28,7 @@ const mapIcons = {
   "material-symbols:stairs-2": RawStairs,
   "material-symbols:square": RawSquare,
   "mdi:town-hall": RawTownHall,
+  "mdi:triangle": RawTriangle,
   "material-symbols:woman": RawWoman,
   "material-symbols:man": RawMan,
   "map:toilet": RawToilet,

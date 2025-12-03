@@ -1,0 +1,7 @@
+export const ZOOM_LEVELS = {
+  WORLD: 0,
+  MAIN_BUILDING: 16.5,
+  ALL_BUILDINGS: 18,
+  BUILDING_DETAILS: 19,
+  MAX_ZOOM: 22,
+};
