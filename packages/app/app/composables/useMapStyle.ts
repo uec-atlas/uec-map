@@ -4,8 +4,12 @@ import type { FilterSpecification, LayerSpecification } from "maplibre-gl";
 export const useMapStyle = (
   floor: Ref<number>,
   shouldUseExtrusion: Ref<boolean>,
+  language: Ref<string>,
 ) =>
   computed(() => {
+    const withLanguageSuffix = (base: string) =>
+      language.value === "en" ? `${base}:en` : base;
+
     const areaLayers: LayerSpecification[] = [
       {
         id: "areas_outline",
@@ -39,7 +43,7 @@ export const useMapStyle = (
         minzoom: 0,
         maxzoom: 17,
         layout: {
-          "text-field": ["get", "name"],
+          "text-field": ["get", withLanguageSuffix("name")],
           "text-size": 16,
           "text-max-width": 12,
         },
@@ -142,7 +146,7 @@ export const useMapStyle = (
           "text-padding": 0,
           "text-allow-overlap": false,
           "icon-allow-overlap": true,
-          "text-field": ["get", "name"],
+          "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
           "text-size": 12,
           "text-max-width": 16,
@@ -258,7 +262,7 @@ export const useMapStyle = (
           "text-padding": 0,
           "text-allow-overlap": false,
           "icon-allow-overlap": true,
-          "text-field": ["get", "name"],
+          "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
           "text-size": 16,
           "text-max-width": 16,
@@ -281,7 +285,7 @@ export const useMapStyle = (
         maxzoom: 20,
         layout: {
           "text-padding": 0,
-          "text-field": ["get", "altname"],
+          "text-field": ["get", withLanguageSuffix("altname")],
           "text-size": 12,
           "text-anchor": "top",
           "text-optional": true,
@@ -341,7 +345,7 @@ export const useMapStyle = (
           "text-padding": 0,
           "text-allow-overlap": false,
           "icon-allow-overlap": true,
-          "text-field": ["get", "name"],
+          "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
           "text-size": 12,
           "text-max-width": 16,
@@ -364,7 +368,7 @@ export const useMapStyle = (
         maxzoom: 20,
         layout: {
           "text-padding": 0,
-          "text-field": ["get", "altname"],
+          "text-field": ["get", withLanguageSuffix("altname")],
           "text-optional": true,
           "text-size": 12,
           "text-anchor": "top",
@@ -634,7 +638,7 @@ export const useMapStyle = (
           "icon-size": 0.8,
           "icon-padding": 0,
           "text-padding": 0,
-          "text-field": ["get", "name"],
+          "text-field": ["get", withLanguageSuffix("name")],
           "text-size": 14,
           "text-max-width": 16,
           "text-offset": [0, 1.5],

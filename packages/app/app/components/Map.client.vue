@@ -10,6 +10,12 @@
     <MglCustomControl>
       <button @click="floor = Math.max(floor - 1, 1)">▼</button>
     </MglCustomControl>
+    <MglCustomControl>
+      <select v-model="language">
+        <option value="ja">日本語</option>
+        <option value="en">English</option>
+      </select>
+    </MglCustomControl>
   </MglMap>
 </template>
 
@@ -28,6 +34,8 @@ const floor = ref(1);
 
 const mapInstance = useMap();
 const shouldUseExtrusion = ref(false);
+const language = ref("ja");
+
 watch(() => mapInstance.isLoaded, async (isLoaded) => {
   if(!isLoaded || !mapInstance.map) return;
   await loadMapIcons(mapInstance.map);
@@ -40,5 +48,5 @@ watch(() => mapInstance.isLoaded, async (isLoaded) => {
   })
 });
 
-const style = useMapStyle(floor, shouldUseExtrusion);
+const style = useMapStyle(floor, shouldUseExtrusion, language);
 </script>
