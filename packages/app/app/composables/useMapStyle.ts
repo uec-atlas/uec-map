@@ -114,7 +114,7 @@ export const useMapStyle = (
         "source-layer": "gates",
         minzoom: 17,
         paint: {
-          "circle-radius": 20,
+          "circle-radius": 18,
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -127,7 +127,7 @@ export const useMapStyle = (
         "source-layer": "gates",
         minzoom: 17,
         paint: {
-          "circle-radius": 16,
+          "circle-radius": 14,
           "circle-color": "#969696",
           "circle-stroke-color": "#FFFFFF",
           "circle-stroke-width": 2,
@@ -201,7 +201,7 @@ export const useMapStyle = (
         minzoom: 17,
         maxzoom: 20,
         paint: {
-          "circle-radius": 20,
+          "circle-radius": 18,
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -216,7 +216,7 @@ export const useMapStyle = (
         minzoom: 17,
         maxzoom: 20,
         paint: {
-          "circle-radius": 18,
+          "circle-radius": 16,
           "circle-color": [
             "match",
             ["get", "type"],
@@ -264,7 +264,7 @@ export const useMapStyle = (
           "icon-allow-overlap": true,
           "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
-          "text-size": 16,
+          "text-size": 14,
           "text-max-width": 16,
           "text-offset": [0, 1.5],
         },
@@ -286,7 +286,7 @@ export const useMapStyle = (
         layout: {
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
-          "text-size": 12,
+          "text-size": 10,
           "text-anchor": "top",
           "text-optional": true,
           "text-offset": [0, 3],
@@ -294,7 +294,7 @@ export const useMapStyle = (
         paint: {
           "text-color": "#000000",
           "text-halo-color": "#FFFFFF",
-          "text-halo-width": 2,
+          "text-halo-width": 1,
         },
       },
     ];
@@ -309,7 +309,7 @@ export const useMapStyle = (
         minzoom: 19,
         maxzoom: 20,
         paint: {
-          "circle-radius": 20,
+          "circle-radius": 16,
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -324,7 +324,7 @@ export const useMapStyle = (
         minzoom: 19,
         maxzoom: 20,
         paint: {
-          "circle-radius": 16,
+          "circle-radius": 14,
           "circle-color": "#969696",
           "circle-stroke-color": "#FFFFFF",
           "circle-stroke-width": 2,
@@ -347,7 +347,7 @@ export const useMapStyle = (
           "icon-allow-overlap": true,
           "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
-          "text-size": 12,
+          "text-size": 10,
           "text-max-width": 16,
           "text-offset": [0, 1.5],
         },
@@ -355,7 +355,7 @@ export const useMapStyle = (
           "text-color": "#000000",
           "icon-color": "#FFFFFF",
           "text-halo-color": "#FFFFFF",
-          "text-halo-width": 2,
+          "text-halo-width": 1,
         },
       },
       {
@@ -370,14 +370,14 @@ export const useMapStyle = (
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
           "text-optional": true,
-          "text-size": 12,
+          "text-size": 10,
           "text-anchor": "top",
           "text-offset": [0, 2],
         },
         paint: {
           "text-color": "#000000",
           "text-halo-color": "#FFFFFF",
-          "text-halo-width": 2,
+          "text-halo-width": 1,
         },
       },
     ];
@@ -562,7 +562,7 @@ export const useMapStyle = (
           visibility: shouldUseExtrusion.value ? "none" : "visible",
         },
         paint: {
-          "circle-radius": 20,
+          "circle-radius": 16,
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -579,7 +579,7 @@ export const useMapStyle = (
           visibility: shouldUseExtrusion.value ? "none" : "visible",
         },
         paint: {
-          "circle-radius": 16,
+          "circle-radius": 14,
           "circle-color": [
             "match",
             ["get", "type"],
@@ -639,7 +639,7 @@ export const useMapStyle = (
           "icon-padding": 0,
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("name")],
-          "text-size": 14,
+          "text-size": 12,
           "text-max-width": 16,
           "text-offset": [0, 1.5],
           "icon-allow-overlap": true,
@@ -649,7 +649,7 @@ export const useMapStyle = (
           "text-color": "#000000",
           "icon-color": "#FFFFFF",
           "text-halo-color": "#FFFFFF",
-          "text-halo-width": 2,
+          "text-halo-width": 1,
         },
       },
     ];

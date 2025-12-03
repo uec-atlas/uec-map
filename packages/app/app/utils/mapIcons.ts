@@ -44,7 +44,7 @@ function loadSvgImage(svgString: string): Promise<HTMLImageElement> {
     );
   }
   return new Promise((resolve, reject) => {
-    const img = new Image(28, 28);
+    const img = new Image(24, 24);
     const svgBlob = new Blob([svgString], {
       type: "image/svg+xml;charset=utf-8",
     });
