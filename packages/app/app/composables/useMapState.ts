@@ -60,6 +60,7 @@ const mapState = {
       padding: options.padding ?? this.padding.value,
     });
   },
+  pathFindResult: ref<GeoJSON.Feature | null>(null),
 };
 
 export const useMapState = () => mapState;

@@ -22,6 +22,7 @@ export const useMapStyle = (
   floor: Ref<number>,
   shouldUseExtrusion: Ref<boolean>,
   language: Ref<string>,
+  pathFindResult: Ref<GeoJSON.Feature | null>,
 ) =>
   computed(() => {
     const mode = useColorMode().value as ColorMode;
@@ -35,7 +36,7 @@ export const useMapStyle = (
         },
         pathFindResult: {
           type: "geojson",
-          data: { type: "FeatureCollection", features: [] },
+          data: { type: "FeatureCollection", features: pathFindResult.value ? [pathFindResult.value] : []},
         },
       },
       layers: [

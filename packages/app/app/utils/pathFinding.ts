@@ -196,10 +196,11 @@ export function getBuildingEntrances(buildingId: string): SnapResult[] {
  * 2点間（またはスナップ情報間）の最短経路をGeoJSON LineStringとして返す
  */
 export function calculateRoute(
-  startSnap: SnapResult,
+  startSnaps: SnapResult | SnapResult[],
   endSnaps: SnapResult | SnapResult[],
   useWeight: boolean,
 ): Feature<LineString> | null {
+  const starts = Array.isArray(startSnaps) ? startSnaps : [startSnaps];
   const targets = Array.isArray(endSnaps) ? endSnaps : [endSnaps];
 
   let bestPathCoordinates: Position[] | null = null;
@@ -207,33 +208,35 @@ export function calculateRoute(
 
   // 全ての入口候補 × スタートの両隣接 × ゴールの両隣接 の組み合わせを探索
   for (const endSnap of targets) {
-    for (const sNode of startSnap.neighbors) {
-      for (const eNode of endSnap.neighbors) {
-        const pathNodes = (useWeight ? weightedPathFinder : pathFinder).find(
-          sNode.id,
-          eNode.id,
-        );
-        if (pathNodes.length === 0 && sNode.id !== eNode.id) continue;
+    for(const startSnap of starts) {
+      for (const sNode of startSnap.neighbors) {
+        for (const eNode of endSnap.neighbors) {
+          const pathNodes = (useWeight ? weightedPathFinder : pathFinder).find(
+            sNode.id,
+            eNode.id,
+          );
+          if (pathNodes.length === 0 && sNode.id !== eNode.id) continue;
 
-        let graphDist = 0;
-        for (let i = 0; i < pathNodes.length - 1; i++) {
-          const currentNode = pathNodes[i];
-          const nextNode = pathNodes[i + 1];
-          if (!currentNode || !nextNode) continue;
-          const link = graph.getLink(currentNode.id, nextNode.id);
-          if (link) {
-            graphDist += link.data.weight;
+          let graphDist = 0;
+          for (let i = 0; i < pathNodes.length - 1; i++) {
+            const currentNode = pathNodes[i];
+            const nextNode = pathNodes[i + 1];
+            if (!currentNode || !nextNode) continue;
+            const link = graph.getLink(currentNode.id, nextNode.id);
+            if (link) {
+              graphDist += link.data.weight;
+            }
           }
-        }
 
-        const total = sNode.dist + graphDist + eNode.dist;
+          const total = sNode.dist + graphDist + eNode.dist;
 
-        if (total < minTotalDist) {
-          minTotalDist = total;
-          const pathCoords = pathNodes
-            .reverse()
-            .map((n) => [n.data.x, n.data.y]);
-          bestPathCoordinates = [startSnap.point, ...pathCoords, endSnap.point];
+          if (total < minTotalDist) {
+            minTotalDist = total;
+            const pathCoords = pathNodes
+              .reverse()
+              .map((n) => [n.data.x, n.data.y]);
+            bestPathCoordinates = [startSnap.point, ...pathCoords, endSnap.point];
+          }
         }
       }
     }

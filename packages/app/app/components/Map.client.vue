@@ -206,5 +206,5 @@ watch(
   },
 );
 
-const style = useMapStyle(mapState.floor, shouldUseExtrusion, language);
+const style = useMapStyle(mapState.floor, shouldUseExtrusion, language, mapState.pathFindResult);
 </script>

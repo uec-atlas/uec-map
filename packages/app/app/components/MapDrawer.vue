@@ -27,22 +27,23 @@
             >
           </div>
         </header>
-        <UButton class="cursor-pointer" icon="material-symbols:alt-route">
+        <UButton class="cursor-pointer" icon="material-symbols:alt-route" @click="executeRouteSearch">
           経路を調べる
         </UButton>
+        <PlaceInput v-model="searchTarget" />
       </section>
     </template>
   </UDrawer>
 </template>
 
 <script setup lang="ts">
-import { build } from "nuxt";
 import {
   BUILDING_AREA_COLOR,
   DARK_BUILDING_AREA_COLOR,
 } from "~/map-style/theme/colors";
+import type { PlaceInputValue } from "./PlaceInput.vue";
 
-const { selectedObject, padding } = useMapState();
+const { selectedObject, padding, pathFindResult } = useMapState();
 const isDesktop = useMediaQuery("(min-width: 768px)");
 const drawerOpen = computed({
   get: () => selectedObject.value !== null,
@@ -52,6 +53,54 @@ const drawerOpen = computed({
     }
   },
 });
+
+const searchTarget = ref<PlaceInputValue>();
+const executeRouteSearch = () => {
+  if (!searchTarget.value || !selectedObject.value) return;
+  const startSnaps: SnapResult[] = [];
+  if(selectedObject.value.type === "room") {
+    const s = getBuildingEntrances(selectedObject.value.building.id);
+    if (s) startSnaps.push(...s);
+  } else {
+    const s = getBuildingEntrances(selectedObject.value.id);
+    startSnaps.push(...s);
+  }
+  if(startSnaps.length === 0) {
+    const s = findNearestNetworkPoint(selectedObject.value.coordinates);
+    if (s) startSnaps.push(s);
+  }
+  if (startSnaps.length === 0) {
+    console.warn('No road nearby for start point.');
+    return;
+  }
+
+  let endSnaps: SnapResult[] = [];
+
+  const buildingId = searchTarget.value.id;
+  endSnaps = getBuildingEntrances(buildingId);
+  console.log(`Building clicked: ${buildingId}, Entrances: ${endSnaps.length}`);
+
+  if (endSnaps.length === 0) {
+    const s = findNearestNetworkPoint(searchTarget.value.value.coordinates);
+    if (s) endSnaps = [s];
+  }
+
+  if (endSnaps.length === 0) {
+    console.warn('No road nearby.');
+    return;
+  }
+
+  const routeGeoJSON = calculateRoute(startSnaps, endSnaps, false);
+
+  if (routeGeoJSON) {
+    // 地図に描画
+    pathFindResult.value = routeGeoJSON;
+    console.log(routeGeoJSON)
+    console.log('Route found!', routeGeoJSON.properties?.distance + 'm');
+  } else {
+    alert('経路が見つかりませんでした（エリアが接続されていない可能性があります）');
+  }
+};
 
 const building = computed(() => {
   if (selectedObject.value?.type !== "room") return null;
