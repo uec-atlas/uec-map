@@ -1,19 +1,22 @@
-import type { LayerSpecification } from "maplibre-gl";
 import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
-import { BUILDING_AREA_COLOR, BUILDING_TYPE_ICON_COLOR } from "../theme/colors";
-import { buildMatch } from "../utils/expressions";
-import { defineLayerFactory } from "../utils/layer";
+import {
+  getBuildingAreaColor,
+  getBuildingTypeIconColor,
+  type ColorMode,
+} from "../theme/colors";
 import { ZOOM_LEVELS } from "../theme/zoom";
+import { buildMatch } from "../utils/expressions";
 import { withLanguageSuffixFactory } from "../utils/lang";
+import { defineLayerFactory } from "../utils/layer";
 
-export const createBuildingLayers = defineLayerFactory(() => ({
+export const createBuildingLayers = defineLayerFactory((mode: ColorMode) => ({
   id: "buildings",
   type: "fill",
   source: UEC_MAP_SOURCE_ID,
   "source-layer": "buildings",
   minzoom: 0,
   paint: {
-    "fill-color": buildMatch("area", BUILDING_AREA_COLOR, "#969696"),
+    "fill-color": buildMatch("area", getBuildingAreaColor(mode), "#969696"),
     "fill-opacity": [
       "step",
       ["zoom"],
@@ -25,8 +28,9 @@ export const createBuildingLayers = defineLayerFactory(() => ({
 }));
 
 export const createBuildingIconLayers = defineLayerFactory(
-  (language: string) => {
+  (language: string, mode: ColorMode) => {
     const withLanguageSuffix = withLanguageSuffixFactory(language);
+    const BUILDING_TYPE = getBuildingTypeIconColor(mode);
     return [
       {
         id: "buildings-icon-shadow",
@@ -53,12 +57,8 @@ export const createBuildingIconLayers = defineLayerFactory(
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         paint: {
           "circle-radius": 16,
-          "circle-color": buildMatch(
-            "type",
-            BUILDING_TYPE_ICON_COLOR,
-            "#969696",
-          ),
-          "circle-stroke-color": "#FFFFFF",
+          "circle-color": buildMatch("type", BUILDING_TYPE, "#969696"),
+          "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
       },
@@ -92,14 +92,14 @@ export const createBuildingIconLayers = defineLayerFactory(
           "icon-allow-overlap": true,
           "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
-          "text-size": 14,
+          "text-size": 16,
           "text-max-width": 16,
           "text-offset": [0, 1.5],
         },
         paint: {
-          "text-color": "#000000",
+          "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
           "icon-color": "#FFFFFF",
-          "text-halo-color": "#FFFFFF",
+          "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
           "text-halo-width": 2,
         },
       },
@@ -114,15 +114,15 @@ export const createBuildingIconLayers = defineLayerFactory(
         layout: {
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
-          "text-size": 10,
+          "text-size": 12,
           "text-anchor": "top",
           "text-optional": true,
           "text-offset": [0, 3],
         },
         paint: {
-          "text-color": "#000000",
-          "text-halo-color": "#FFFFFF",
-          "text-halo-width": 1,
+          "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
+          "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
+          "text-halo-width": 2,
         },
       },
     ];
@@ -130,7 +130,7 @@ export const createBuildingIconLayers = defineLayerFactory(
 );
 
 export const createBuildingDetailIconLayers = defineLayerFactory(
-  (language: string) => {
+  (language: string, mode: ColorMode) => {
     const withLanguageSuffix = withLanguageSuffixFactory(language);
     return [
       {
@@ -159,7 +159,7 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
         paint: {
           "circle-radius": 14,
           "circle-color": "#969696",
-          "circle-stroke-color": "#FFFFFF",
+          "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
       },
@@ -180,14 +180,14 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
           "icon-allow-overlap": true,
           "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
-          "text-size": 10,
+          "text-size": 12,
           "text-max-width": 16,
           "text-offset": [0, 1.5],
         },
         paint: {
-          "text-color": "#000000",
+          "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
           "icon-color": "#FFFFFF",
-          "text-halo-color": "#FFFFFF",
+          "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
           "text-halo-width": 1,
         },
       },
@@ -203,13 +203,13 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
           "text-optional": true,
-          "text-size": 10,
+          "text-size": 12,
           "text-anchor": "top",
           "text-offset": [0, 2],
         },
         paint: {
-          "text-color": "#000000",
-          "text-halo-color": "#FFFFFF",
+          "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
+          "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
           "text-halo-width": 1,
         },
       },

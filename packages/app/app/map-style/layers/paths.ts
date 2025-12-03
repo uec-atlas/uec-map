@@ -1,7 +1,8 @@
 import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
 import { defineLayerFactory } from "../utils/layer";
+import type { ColorMode } from "../theme/colors";
 
-export const createPathLayers = defineLayerFactory(() => [
+export const createPathLayers = defineLayerFactory((theme: ColorMode) => [
   {
     id: "paths_outline",
     type: "line",
@@ -31,7 +32,7 @@ export const createPathLayers = defineLayerFactory(() => [
     filter: ["!=", "hidden", true],
     minzoom: 0,
     paint: {
-      "line-color": "#FFFFFF",
+      "line-color": theme === "dark" ? "#444444" : "#FFFFFF",
       "line-width": [
         "interpolate",
         ["exponential", 2],

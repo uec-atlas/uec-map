@@ -1,4 +1,3 @@
-// Centralized color maps for the map style.
 export const TYPE_COLOR_MAP: Record<string, string> = {
   misc: "#969696",
   corridor: "#EAEAEA",
@@ -35,3 +34,61 @@ export const FLOOR_ICON_BG_COLOR: Record<string, string> = {
   common_space: "#f7c71c",
   office: "#0ca70e",
 };
+
+// Dark-mode variants
+export const DARK_TYPE_COLOR_MAP: Record<string, string> = {
+  misc: "#2f2f2f",
+  corridor: "#4b4b4b",
+  elevator: "#5a5a5a",
+  stairs: "#5a5a5a",
+  lecture_room: "#27445f",
+  wc_universal: "#5a3d66",
+  wc_unknown: "#5b3a57",
+  wc_men: "#2b4f78",
+  wc_women: "#7a2f36",
+  common_space: "#6b5a00",
+  office: "#1f3f25",
+};
+
+export const DARK_BUILDING_AREA_COLOR: Record<string, string> = {
+  east: "#2b5d3a",
+  west: "#7a3b33",
+  "100th": "#2e6580",
+};
+
+export const DARK_BUILDING_TYPE_ICON_COLOR: Record<string, string> = {
+  academic: "#0f5f86",
+  office: "#1b7a08",
+  community: "#a67f00",
+  residential: "#6b2ea8",
+};
+
+export const DARK_FLOOR_ICON_BG_COLOR: Record<string, string> = {
+  lecture_room: "#0f6fa0",
+  wc_universal: "#5b2fa0",
+  wc_unknown: "#6a2a86",
+  wc_men: "#12345f",
+  wc_women: "#8a1b2b",
+  common_space: "#8b6b16",
+  office: "#0b5a08",
+};
+
+export type ColorMode = "light" | "dark";
+
+export function getTypeColorMap(mode: ColorMode) {
+  return mode === "dark" ? DARK_TYPE_COLOR_MAP : TYPE_COLOR_MAP;
+}
+
+export function getBuildingAreaColor(mode: ColorMode) {
+  return mode === "dark" ? DARK_BUILDING_AREA_COLOR : BUILDING_AREA_COLOR;
+}
+
+export function getBuildingTypeIconColor(mode: ColorMode) {
+  return mode === "dark"
+    ? DARK_BUILDING_TYPE_ICON_COLOR
+    : BUILDING_TYPE_ICON_COLOR;
+}
+
+export function getFloorIconBgColor(mode: ColorMode) {
+  return mode === "dark" ? DARK_FLOOR_ICON_BG_COLOR : FLOOR_ICON_BG_COLOR;
+}

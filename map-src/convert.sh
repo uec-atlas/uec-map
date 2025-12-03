@@ -26,5 +26,8 @@ tippecanoe -o map.pmtiles \
   -L entrances:<(ogr2ogr -f GeoJSONSeq /vsistdout/ entrances.gpkg) \
   -L paths:<(ogr2ogr -f GeoJSONSeq /vsistdout/ paths.gpkg)
 
-ogr2ogr -f GeoJSON paths.json paths.gpkg -t_srs EPSG:4326
+ogr2ogr -f GeoJSON areas.json areas.gpkg -t_srs EPSG:4326
+ogr2ogr -f GeoJSON buildings.json buildings.gpkg -t_srs EPSG:4326
+ogr2ogr -f GeoJSON gates.json gates.gpkg -t_srs EPSG:4326
 ogr2ogr -f GeoJSON entrances.json entrances.gpkg -t_srs EPSG:4326
+ogr2ogr -f GeoJSON paths.json paths.gpkg -t_srs EPSG:4326

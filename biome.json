@@ -45,7 +45,7 @@
         "**/*.vue"
       ],
       "formatter": {
-        "enabled": false
+        "enabled": true
       },
       "linter": {
         "rules": {

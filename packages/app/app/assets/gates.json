@@ -1,0 +1,14 @@
+{
+"type": "FeatureCollection",
+"name": "gates",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "name": "正門", "name:en": "Main Gate", "id": "main", "area": "east" }, "geometry": { "type": "Point", "coordinates": [ 139.543713923480112, 35.655517054687692 ] } },
+{ "type": "Feature", "properties": { "name": "南門", "name:en": "South Gate", "id": "south", "area": "east" }, "geometry": { "type": "Point", "coordinates": [ 139.544458230624116, 35.655309235568694 ] } },
+{ "type": "Feature", "properties": { "name": "東門", "name:en": "East Gate", "id": "east", "area": "east" }, "geometry": { "type": "Point", "coordinates": [ 139.544804524413848, 35.655945685153021 ] } },
+{ "type": "Feature", "properties": { "name": "中門", "name:en": "Central Gate", "id": "central_east", "area": "east" }, "geometry": { "type": "Point", "coordinates": [ 139.542872919974599, 35.657583592579606 ] } },
+{ "type": "Feature", "properties": { "name": "中門", "name:en": "Central Gate", "id": "central_west", "area": "west" }, "geometry": { "type": "Point", "coordinates": [ 139.542782548891921, 35.657610705017653 ] } },
+{ "type": "Feature", "properties": { "name": "西門", "name:en": "West Gate", "id": "west", "area": "west" }, "geometry": { "type": "Point", "coordinates": [ 139.540191161274862, 35.657421736082725 ] } },
+{ "type": "Feature", "properties": { "name": "北門", "name:en": "North Gate", "id": "north", "area": "east" }, "geometry": { "type": "Point", "coordinates": [ 139.543251863969886, 35.65885882169772 ] } }
+]
+}

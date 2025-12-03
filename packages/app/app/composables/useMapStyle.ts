@@ -1,29 +1,22 @@
-import { buildMapStyle, UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
-import { computed } from "vue";
+import { buildMapStyle } from "@e-chan1007/uec-map-sdk";
 import type { Ref } from "vue";
-import type {
-  FilterSpecification,
-  LayerSpecification,
-  Expression,
-  DataDrivenPropertyValueSpecification,
-  ExpressionSpecification,
-} from "maplibre-gl";
-import { buildMatch } from "../map-style/utils/expressions";
+import { computed } from "vue";
+import { createEntrancesLayers } from "~/map-style/layers/entrances";
 import {
   createAreaLabelLayers,
   createAreaLayers,
 } from "../map-style/layers/areas";
-import { createPathLayers } from "../map-style/layers/paths";
-import { createGateLayers } from "../map-style/layers/gates";
 import {
-  createBuildingLayers,
-  createBuildingIconLayers,
   createBuildingDetailIconLayers,
+  createBuildingIconLayers,
+  createBuildingLayers,
 } from "../map-style/layers/buildings";
 import { createExtrusionLayers } from "../map-style/layers/extrusion";
 import { createFloorLayers } from "../map-style/layers/floors";
+import { createGateLayers } from "../map-style/layers/gates";
 import { createOsmLayers } from "../map-style/layers/osm";
-import { createEntrancesLayers } from "~/map-style/layers/entrances";
+import { createPathLayers } from "../map-style/layers/paths";
+import type { ColorMode } from "~/map-style/theme/colors";
 
 export const useMapStyle = (
   floor: Ref<number>,
@@ -31,8 +24,7 @@ export const useMapStyle = (
   language: Ref<string>,
 ) =>
   computed(() => {
-    // Layer factories are provided by ../map-style/layers/*. Use those.
-
+    const mode = useColorMode().value as ColorMode;
     return buildMapStyle({
       version: 8,
       sources: {
@@ -47,20 +39,28 @@ export const useMapStyle = (
         },
       },
       layers: [
-        ...createOsmLayers(),
-        ...createAreaLayers(),
-        ...createPathLayers(),
-        ...createBuildingLayers(),
-        ...createEntrancesLayers(),
-        ...createExtrusionLayers(floor.value, shouldUseExtrusion.value),
-        ...createAreaLabelLayers(language.value),
-        ...createBuildingDetailIconLayers(language.value),
-        ...createGateLayers(language.value),
-        ...createBuildingIconLayers(language.value),
+        {
+          id: "background",
+          type: "background",
+          paint: {
+            "background-color": mode === "dark" ? "#0B0B1A" : "#FFFFFF",
+          },
+        },
+        ...createOsmLayers(mode),
+        ...createAreaLayers(mode),
+        ...createPathLayers(mode),
+        ...createBuildingLayers(mode),
+        ...createEntrancesLayers(mode),
+        ...createExtrusionLayers(floor.value, shouldUseExtrusion.value, mode),
+        ...createAreaLabelLayers(language.value, mode),
+        ...createBuildingDetailIconLayers(language.value, mode),
+        ...createGateLayers(language.value, mode),
+        ...createBuildingIconLayers(language.value, mode),
         ...createFloorLayers(
           floor.value,
           shouldUseExtrusion.value,
           language.value,
+          mode,
         ),
       ],
     });

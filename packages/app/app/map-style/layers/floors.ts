@@ -1,14 +1,25 @@
 import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
 import type { FilterSpecification } from "maplibre-gl";
-import { FLOOR_ICON_BG_COLOR, TYPE_COLOR_MAP } from "../theme/colors";
+import {
+  getTypeColorMap,
+  getFloorIconBgColor,
+  type ColorMode,
+} from "../theme/colors";
 import { buildMatch } from "../utils/expressions";
 import { withLanguageSuffixFactory } from "../utils/lang";
 import { defineLayerFactory } from "../utils/layer";
 import { ZOOM_LEVELS } from "../theme/zoom";
 
 export const createFloorLayers = defineLayerFactory(
-  (floor: number, shouldUseExtrusion: boolean, language: string) => {
+  (
+    floor: number,
+    shouldUseExtrusion: boolean,
+    language: string,
+    mode: ColorMode,
+  ) => {
     const withLanguageSuffix = withLanguageSuffixFactory(language);
+    const TYPE = getTypeColorMap(mode);
+    const FLOOR_BG = getFloorIconBgColor(mode);
 
     const floorIconFilter: FilterSpecification = [
       "all",
@@ -26,7 +37,7 @@ export const createFloorLayers = defineLayerFactory(
         filter: ["==", ["get", "floor"], floor],
         layout: { visibility: shouldUseExtrusion ? "none" : "visible" },
         paint: {
-          "fill-color": buildMatch("type", TYPE_COLOR_MAP, "#31A6D4"),
+          "fill-color": buildMatch("type", TYPE, "#31A6D4"),
           "fill-outline-color": "#232323",
         },
       },
@@ -55,8 +66,8 @@ export const createFloorLayers = defineLayerFactory(
         layout: { visibility: shouldUseExtrusion ? "none" : "visible" },
         paint: {
           "circle-radius": 14,
-          "circle-color": buildMatch("type", FLOOR_ICON_BG_COLOR, "#969696"),
-          "circle-stroke-color": "#FFFFFF",
+          "circle-color": buildMatch("type", FLOOR_BG, "#969696"),
+          "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
       },
@@ -96,16 +107,16 @@ export const createFloorLayers = defineLayerFactory(
           "icon-padding": 0,
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("name")],
-          "text-size": 12,
+          "text-size": 14,
           "text-max-width": 16,
           "text-offset": [0, 1.5],
           "icon-allow-overlap": true,
           "text-allow-overlap": true,
         },
         paint: {
-          "text-color": "#000000",
+          "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
           "icon-color": "#FFFFFF",
-          "text-halo-color": "#FFFFFF",
+          "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
           "text-halo-width": 1,
         },
       },

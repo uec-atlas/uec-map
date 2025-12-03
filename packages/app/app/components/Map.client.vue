@@ -1,44 +1,108 @@
 <template>
-  <MglMap :map-style="style" :center="center" :zoom="zoom" :max-zoom="22" :bearing="20" interactive>
-    <MglNavigationControl/>
-    <MglCustomControl>
-      <button @click="floor = Math.min(floor + 1, 4)">▲</button>
-      </MglCustomControl>
-    <MglCustomControl>
-      <button>{{ floor }}F</button>
-    </MglCustomControl>
-    <MglCustomControl>
-      <button @click="floor = Math.max(floor - 1, 1)">▼</button>
-    </MglCustomControl>
-    <MglCustomControl>
-      <select v-model="language">
-        <option value="ja">日本語</option>
-        <option value="en">English</option>
-      </select>
-    </MglCustomControl>
-    <MglGeolocateControl
-      :position-options="{ enableHighAccuracy: true }"
-      :track-user-location="true"
-    />
-    <!-- <MglMarker
-      :coordinates="center"
+  <div class="relative w-full h-full">
+    <MglMap
+      :map-style="style"
+      :center="MAP_INITIAL_CENTER"
+      :zoom="mapState.zoom.value"
+      :max-zoom="22"
+      :bearing="20"
+      interactive
     >
-      <template #marker>
-        <LocationIcon style="width: 32px; height: 32px; color: red;" />
-      </template>
-    </MglMarker> -->
-  </MglMap>
+      <MglMarker
+        v-if="mapState.userLocation.value && isAroundUEC(mapState.userLocation.value)"
+        :coordinates="mapState.userLocation.value"
+      >
+        <template #marker>
+          <div
+            class="bg-blue-500 rounded-full w-4 h-4 border-2 border-white shadow shadow-blue-800"
+          />
+        </template>
+      </MglMarker>
+    </MglMap>
+    <div
+      class="absolute top-4 right-4 z-50 pointer-events-auto w-fit h-fit flex flex-col space-y-2"
+    >
+      <UFieldGroup
+        orientation="vertical"
+        v-show="mapState.zoom.value >= ZOOM_LEVELS.BUILDING_DETAILS"
+      >
+        <UButton
+          color="neutral"
+          class="cursor-pointer grid place-items-center"
+          icon="material-symbols:arrow-upward"
+          variant="outline"
+          size="lg"
+          :disabled="mapState.floor.value >= 10"
+          @click="mapState.floor.value = Math.min(mapState.floor.value + 1, 10)"
+          aria-label="Zoom in"
+        />
+        <UBadge
+          class="w-10 grid place-items-center"
+          color="neutral"
+          variant="outline"
+          size="lg"
+          :label="mapState.floor.value + 'F'"
+        />
+        <UButton
+          color="neutral"
+          class="cursor-pointer grid place-items-center"
+          icon="material-symbols:arrow-downward"
+          variant="outline"
+          size="lg"
+          :disabled="mapState.floor.value <= 1"
+          @click="mapState.floor.value = Math.max(mapState.floor.value - 1, 1)"
+          aria-label="Zoom out"
+        />
+      </UFieldGroup>
+    </div>
+    <div
+      class="absolute bottom-2 left-2 z-50 pointer-events-auto w-fit h-fit flex flex-col space-y-2"
+    >
+      <UButton
+        v-if="mapState.userLocation.value && isAroundUEC(mapState.userLocation.value)"
+        class="cursor-pointer"
+        color="neutral"
+        size="lg"
+        icon="material-symbols:location-searching"
+        variant="outline"
+        @click="mapState.jumpTo({ center: mapState.userLocation.value, zoom: 18 })"
+        aria-label="Locate me"
+      />
+      <UFieldGroup orientation="vertical" class="pointer-events-auto">
+        <UButton
+          color="neutral"
+          class="cursor-pointer"
+          icon="material-symbols:zoom-in"
+          size="lg"
+          variant="outline"
+          @click="mapInstance.map?.zoomIn()"
+          aria-label="Zoom in"
+        />
+        <UButton
+          color="neutral"
+          class="cursor-pointer"
+          icon="material-symbols:zoom-out"
+          size="lg"
+          variant="outline"
+          @click="mapInstance.map?.zoomOut()"
+          aria-label="Zoom out"
+        />
+      </UFieldGroup>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { setupTiles } from "@e-chan1007/uec-map-sdk";
 import { useMap } from "@indoorequal/vue-maplibre-gl";
-import maplibregl from 'maplibre-gl';
+import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import LocationIcon from "~icons/material-symbols/location-on";
 
+import BuildingsGeoJSON from "@/assets/buildings.json";
 import EntrancesGeoJSON from "@/assets/entrances.json";
 import PathsGeoJSON from "@/assets/paths.json";
+import { ZOOM_LEVELS } from "~/map-style/theme/zoom";
+import { center } from "@turf/turf";
 
 initPathFinding(
   PathsGeoJSON as GeoJSON.FeatureCollection<GeoJSON.LineString>,
@@ -47,105 +111,100 @@ initPathFinding(
 
 setupTiles(maplibregl);
 
-const center = [139.5425, 35.6570] as [number, number];
-const zoom = 15;
-
-const floor = ref(1);
-
 const mapInstance = useMap();
-const shouldUseExtrusion = ref(false);
+const mapState = useMapState();
+const shouldUseExtrusion = computed(() => mapState.pitch.value > 30);
 const language = ref("ja");
-const startSnap = ref<SnapResult | null>(null);
 
-watch(() => mapInstance.isLoaded, async (isLoaded) => {
-  if(!isLoaded || !mapInstance.map) return;
-  const map = mapInstance.map;
-  await loadMapIcons(map);
+watch(
+  () => mapInstance.isLoaded,
+  async (isLoaded) => {
+    if (!isLoaded || !mapInstance.map) return;
+    const map = mapInstance.map;
+    mapState.map.value = map;
+    await loadMapIcons(map);
 
-  map.on("pitch", (e) => {
-    const _shouldUseExtrusion = e.target.getPitch() > 30;
-    if(shouldUseExtrusion.value !== _shouldUseExtrusion) {
-      shouldUseExtrusion.value = _shouldUseExtrusion;
+    const interactiveLayers = ["buildings", "floors", "gates-label"];
+
+    map.on("pitch", () => {
+      mapState.pitch.value = map.getPitch();
+    });
+
+    map.on("zoomend", () => {
+      mapState.zoom.value = map.getZoom();
+    });
+
+    map.on("moveend", () => {
+      const center = map.getCenter();
+      mapState.center.value = [center.lng, center.lat];
+    });
+
+    map.on("click", (e) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: interactiveLayers,
+      });
+      if (features.length > 0) {
+        const layerType = (
+          {
+            buildings: "building",
+            floors: "room",
+            "gates-label": "gate",
+          } as const
+        )[features[0]?.layer.id as string];
+        // biome-ignore lint/style/noNonNullAssertion: Length checked above
+        const feature = features[0]!;
+        if (!layerType) return;
+        const selectedObject: Partial<SelectedObject> = {
+          type: layerType,
+          id: feature.properties.id?.toString() || "",
+          properties: feature.properties || {},
+          coordinates:
+            feature.geometry.type === "Point"
+              ? (feature.geometry.coordinates as [number, number])
+              : (center(feature.geometry).geometry.coordinates as [
+                  number,
+                  number,
+                ]),
+        };
+        if (selectedObject.type === "room") {
+          const building = BuildingsGeoJSON.features.find((bld) =>
+            layerType === "room"
+              ? bld.properties.id === feature.properties.building_id
+              : false,
+          );
+          selectedObject.building = {
+            id: building?.properties.id || "",
+            properties: building?.properties || {},
+          };
+        }
+        mapState.selectedObject.value = selectedObject as SelectedObject;
+      } else {
+        mapState.selectedObject.value = null;
+      }
+    });
+
+    for (const layer of interactiveLayers) {
+      map.on("mouseenter", layer, () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", layer, () => {
+        map.getCanvas().style.cursor = "";
+      });
     }
-  })
+  },
+);
 
-  map.on('click', (e) => {
-  const clickCoords: [number, number] = [e.lngLat.lng, e.lngLat.lat];
-
-  // 1. クリックしたのが「建物」かどうか判定
-  const [feature] = map.queryRenderedFeatures(e.point, { layers: ['buildings'] });
-
-  let targetSnaps: SnapResult[] = [];
-
-  if (feature) {
-    // 建物の場合: IDを取得して入口を探す
-    const buildingId = feature.properties?.['id'];
-    if (buildingId) {
-      targetSnaps = getBuildingEntrances(buildingId);
-      console.log(`Building clicked: ${buildingId}, Entrances: ${targetSnaps.length}`);
+watch(
+  () => mapState.selectedObject.value,
+  (newVal) => {
+    if (newVal) {
+      mapState.jumpTo({
+        center: newVal.coordinates,
+        zoom: Math.max(mapState.zoom.value, ZOOM_LEVELS.ALL_BUILDINGS),
+      });
     }
+  },
+);
 
-    // 入口が見つからない、またはIDがない場合は、クリック位置から最寄りの道路へ
-    if (targetSnaps.length === 0) {
-      const s = findNearestNetworkPoint(clickCoords);
-      if (s) targetSnaps = [s];
-    }
-  } else {
-    // 道路/地面の場合: クリック位置から最寄りの道路へスナップ
-    const s = findNearestNetworkPoint(clickCoords);
-    if (s) targetSnaps = [s];
-  }
-
-  // 近くに道路がない場合
-  if (targetSnaps.length === 0) {
-    console.warn('No road nearby.');
-    return;
-  }
-
-  // 2. スタート・ゴールの状態遷移
-  if (!startSnap.value) {
-    // --- 1回目のクリック: スタート設定 ---
-    startSnap.value = targetSnaps[0] ?? null; // スタート地点は常に1つと仮定（現在地など）
-
-    // (UI: ここでスタート地点にマーカーを立てると親切)
-    console.log('Start set:', startSnap);
-    alert('スタート地点を設定しました。ゴールとなる建物をクリックしてください。');
-
-  } else {
-    // --- 2回目のクリック: ゴール設定 & 計算 ---
-    const endSnaps = targetSnaps; // 建物なら複数の入口候補が入る
-
-    // 経路計算
-    console.time('CalcRoute');
-    const routeGeoJSON = calculateRoute(startSnap.value, endSnaps, false);
-    console.timeEnd('CalcRoute');
-
-    if (routeGeoJSON) {
-      // 地図に描画
-      const source = map.getSource('pathFindResult') as maplibregl.GeoJSONSource;
-      source.setData(routeGeoJSON);
-      console.log(routeGeoJSON)
-      console.log('Route found!', routeGeoJSON.properties?.distance + 'm');
-    } else {
-      alert('経路が見つかりませんでした（エリアが接続されていない可能性があります）');
-    }
-
-    startSnap.value = null;
-  }
-});
-
-// カーソルの変更 (建物の上に来たらポインタにする)
-map.on('mouseenter', 'buildings', () => {
-  map.getCanvas().style.cursor = 'pointer';
-});
-map.on('mouseleave', 'buildings', () => {
-  map.getCanvas().style.cursor = '';
-});
-});
-
-const style = useMapStyle(floor, shouldUseExtrusion, language);
-
-onMounted(() => {
-})
-
+const style = useMapStyle(mapState.floor, shouldUseExtrusion, language);
 </script>

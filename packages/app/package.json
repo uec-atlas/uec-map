@@ -12,13 +12,16 @@
   "dependencies": {
     "@e-chan1007/uec-map-sdk": "workspace:*",
     "@indoorequal/vue-maplibre-gl": "^8.4.2",
+    "@nuxt/ui": "^4.2.1",
     "@turf/turf": "^7.3.1",
+    "@vueuse/nuxt": "^14.1.0",
     "maplibre-gl": "^5.13.0",
     "ngraph.graph": "^20.1.1",
     "ngraph.path": "^1.6.1",
     "nuxt": "^4.2.1",
     "nuxt-maplibre": "1.2.0",
     "rbush": "^4.0.1",
+    "tailwindcss": "^4.1.17",
     "unplugin-icons": "^22.5.0",
     "vue": "^3.5.25",
     "vue-router": "^4.6.3"
