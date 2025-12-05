@@ -27,10 +27,14 @@
             >
           </div>
         </header>
-        <UButton class="cursor-pointer" icon="material-symbols:alt-route" @click="executeRouteSearch">
+        <UButton
+          class="cursor-pointer"
+          icon="material-symbols:alt-route"
+          @click="executeRouteSearch"
+        >
           経路を調べる
         </UButton>
-        <PlaceInput v-model="searchTarget" />
+        <PlaceInput v-model="searchTarget"/>
       </section>
     </template>
   </UDrawer>
@@ -42,35 +46,50 @@ import {
   DARK_BUILDING_AREA_COLOR,
 } from "~/map-style/theme/colors";
 import type { PlaceInputValue } from "./PlaceInput.vue";
+import { bbox } from "@turf/turf";
 
-const { selectedObject, padding, pathFindResult } = useMapState();
+const {
+  map,
+  selectedObject: _selectedObject,
+  padding,
+  pathFindResult,
+} = useMapState();
 const isDesktop = useMediaQuery("(min-width: 768px)");
+const selectedObject = ref(_selectedObject.value);
 const drawerOpen = computed({
-  get: () => selectedObject.value !== null,
+  get: () => _selectedObject.value !== null,
   set: (val: boolean) => {
     if (!val) {
-      selectedObject.value = null;
+      _selectedObject.value = null;
     }
   },
 });
+
+watch(
+  () => _selectedObject.value,
+  (newVal) => {
+    if (newVal === null) return;
+    selectedObject.value = newVal;
+  },
+);
 
 const searchTarget = ref<PlaceInputValue>();
 const executeRouteSearch = () => {
   if (!searchTarget.value || !selectedObject.value) return;
   const startSnaps: SnapResult[] = [];
-  if(selectedObject.value.type === "room") {
+  if (selectedObject.value.type === "room") {
     const s = getBuildingEntrances(selectedObject.value.building.id);
     if (s) startSnaps.push(...s);
   } else {
     const s = getBuildingEntrances(selectedObject.value.id);
     startSnaps.push(...s);
   }
-  if(startSnaps.length === 0) {
+  if (startSnaps.length === 0) {
     const s = findNearestNetworkPoint(selectedObject.value.coordinates);
     if (s) startSnaps.push(s);
   }
   if (startSnaps.length === 0) {
-    console.warn('No road nearby for start point.');
+    console.warn("No road nearby for start point.");
     return;
   }
 
@@ -86,7 +105,7 @@ const executeRouteSearch = () => {
   }
 
   if (endSnaps.length === 0) {
-    console.warn('No road nearby.');
+    console.warn("No road nearby.");
     return;
   }
 
@@ -95,10 +114,30 @@ const executeRouteSearch = () => {
   if (routeGeoJSON) {
     // 地図に描画
     pathFindResult.value = routeGeoJSON;
-    console.log(routeGeoJSON)
-    console.log('Route found!', routeGeoJSON.properties?.distance + 'm');
+    const _bbox = bbox(routeGeoJSON);
+
+    map.value?.fitBounds(
+      [
+        [_bbox[0], _bbox[1]],
+        [_bbox[2], _bbox[3]],
+      ],
+      {
+        bearing: map.value.getBearing(),
+        padding: {
+          top: (padding.value.top ?? 0) + 50,
+          bottom: (padding.value.bottom ?? 0) + 50,
+          left: (padding.value.left ?? 0) + 50,
+          right: (padding.value.right ?? 0) + 50,
+        },
+      },
+    );
+
+    console.log(routeGeoJSON);
+    console.log("Route found!", routeGeoJSON.properties?.distance + "m");
   } else {
-    alert('経路が見つかりませんでした（エリアが接続されていない可能性があります）');
+    alert(
+      "経路が見つかりませんでした（エリアが接続されていない可能性があります）",
+    );
   }
 };
 

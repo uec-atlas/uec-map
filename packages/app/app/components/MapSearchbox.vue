@@ -6,7 +6,7 @@
       v-model:search-term="searchTerm"
       :groups="searchOptions"
       placeholder="検索"
-      close
+      :close="searchTerm.length > 0"
       :fuse="{
         fuseOptions,
         matchAllWhenSearchEmpty: false
@@ -36,5 +36,4 @@ watch(value, (newValue) => {
 });
 
 const { searchOptions, fuseOptions } = useSearchOptions();
-
 </script>

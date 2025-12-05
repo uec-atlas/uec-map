@@ -46,7 +46,7 @@ const mapState = {
         ] as [number, number])
       : null,
   ),
-  padding: ref<PaddingOptions>({ top: 0, bottom: 0, left: 0, right: 0 }),
+  padding: ref<PaddingOptions>({ top: 64, bottom: 0, left: 0, right: 0 }),
   jumpTo(options: {
     center: LngLatLike;
     zoom?: number;

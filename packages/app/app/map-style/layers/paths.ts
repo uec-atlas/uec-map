@@ -51,8 +51,8 @@ export const createPathLayers = defineLayerFactory((theme: ColorMode) => [
     source: "pathFindResult",
     minzoom: 0,
     paint: {
-      "line-color": "#FF0000",
-      "line-width": 4,
+      "line-color": "#2B7FFF",
+      "line-width": 6,
     },
     layout: { "line-cap": "round", "line-join": "round" },
   },
