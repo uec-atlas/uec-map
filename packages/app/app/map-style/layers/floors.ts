@@ -15,18 +15,9 @@ export const createFloorLayers = defineLayerFactory(
   (
     floor: number,
     shouldUseExtrusion: boolean,
-    language: string,
     mode: ColorMode,
   ) => {
-    const withLanguageSuffix = withLanguageSuffixFactory(language);
     const TYPE = getTypeColorMap(mode);
-    const FLOOR_BG = getFloorIconBgColor(mode);
-
-    const floorIconFilter: FilterSpecification = [
-      "all",
-      ["==", ["get", "floor"], floor],
-      ["!", ["in", ["get", "type"], ["literal", ["corridor", "misc"]]]],
-    ];
 
     return [
       {
@@ -42,6 +33,27 @@ export const createFloorLayers = defineLayerFactory(
           "fill-outline-color": "#232323",
         },
       },
+    ];
+  },
+);
+
+export const createFloorIconLayers = defineLayerFactory(
+  (
+    floor: number,
+    shouldUseExtrusion: boolean,
+    language: string,
+    mode: ColorMode,
+  ) => {
+    const withLanguageSuffix = withLanguageSuffixFactory(language);
+    const FLOOR_BG = getFloorIconBgColor(mode);
+
+    const floorIconFilter: FilterSpecification = [
+      "all",
+      ["==", ["get", "floor"], floor],
+      ["!", ["in", ["get", "type"], ["literal", ["corridor", "misc"]]]],
+    ];
+
+    return [
       {
         id: "floors-icon-shadow",
         type: "circle",

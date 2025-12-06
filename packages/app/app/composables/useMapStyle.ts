@@ -12,7 +12,7 @@ import {
   createBuildingLayers,
 } from "../map-style/layers/buildings";
 import { createExtrusionLayers } from "../map-style/layers/extrusion";
-import { createFloorLayers } from "../map-style/layers/floors";
+import { createFloorLayers, createFloorIconLayers } from "../map-style/layers/floors";
 import { createGateLayers } from "../map-style/layers/gates";
 import { createOsmLayers } from "../map-style/layers/osm";
 import { createPathLayers } from "../map-style/layers/paths";
@@ -33,7 +33,7 @@ export const useMapStyle = (
       ...createBuildingDetailIconLayers(language.value, mode),
       ...createGateLayers(language.value, mode),
       ...createBuildingIconLayers(language.value, mode),
-      ...createFloorLayers(
+      ...createFloorIconLayers(
         floor.value,
         shouldUseExtrusion.value,
         language.value,
@@ -70,6 +70,7 @@ export const useMapStyle = (
         ...createAreaLayers(mode),
         ...createPathLayers(mode),
         ...createBuildingLayers(mode),
+        ...createFloorLayers(floor.value, shouldUseExtrusion.value, mode),
         ...createEntrancesLayers(mode),
         ...createExtrusionLayers(floor.value, shouldUseExtrusion.value, mode),
         ...createSelectedObjectLayers(mode),
