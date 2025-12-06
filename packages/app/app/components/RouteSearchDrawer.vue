@@ -158,6 +158,7 @@ const executeRouteSearch = () => {
 
   const endSnaps = getBuildingEntrances(placeTo.value.value.id);
   if (endSnaps.length === 0) {
+    console.log(placeTo.value.value)
     const s = findNearestNetworkPoint(placeTo.value.value.coordinates);
     if (s) endSnaps.push(s);
   }

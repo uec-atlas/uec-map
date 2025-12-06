@@ -85,7 +85,10 @@ const searchOptions = [
           type: "room",
           id: `${index}`,
           properties: room.properties,
-          building,
+          building: {
+            id: building.properties.id as string,
+            properties: building.properties,
+          },
           coordinates: centroid(polygonToLine(room.geometry as unknown as Polygon))
             .geometry.coordinates,
           geometry: room.geometry,
