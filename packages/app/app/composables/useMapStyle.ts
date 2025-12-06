@@ -17,14 +17,14 @@ import { createGateLayers } from "../map-style/layers/gates";
 import { createOsmLayers } from "../map-style/layers/osm";
 import { createPathLayers } from "../map-style/layers/paths";
 import type { ColorMode } from "~/map-style/theme/colors";
+import { createSelectedObjectLayers } from "~/map-style/layers/selectedObject";
 
 export const useMapStyle = (
-  floor: Ref<number>,
   shouldUseExtrusion: Ref<boolean>,
   language: Ref<string>,
-  pathFindResult: Ref<GeoJSON.Feature | null>,
 ) =>
   computed(() => {
+    const { floor, selectedObject, pathFindResult } = useMapState();
     const mode = useColorMode().value as ColorMode;
     return buildMapStyle({
       version: 8,
@@ -37,6 +37,10 @@ export const useMapStyle = (
         pathFindResult: {
           type: "geojson",
           data: { type: "FeatureCollection", features: pathFindResult.value ? [pathFindResult.value] : []},
+        },
+        selectedObject: {
+          type: "geojson",
+          data: { type: "Feature", geometry: selectedObject.value ? selectedObject.value.geometry : { type: "Polygon", coordinates: [] }, properties: {} },
         },
       },
       layers: [
@@ -63,6 +67,7 @@ export const useMapStyle = (
           language.value,
           mode,
         ),
+        ...createSelectedObjectLayers(mode)
       ],
     });
   });

@@ -94,7 +94,7 @@ export const createBuildingIconLayers = defineLayerFactory(
           "text-optional": true,
           "text-size": 16,
           "text-max-width": 16,
-          "text-offset": [0, 1.5],
+          "text-offset": [0, 1.75],
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
@@ -117,7 +117,7 @@ export const createBuildingIconLayers = defineLayerFactory(
           "text-size": 12,
           "text-anchor": "top",
           "text-optional": true,
-          "text-offset": [0, 3],
+          "text-offset": [0, 3.25],
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
@@ -180,9 +180,9 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
           "icon-allow-overlap": true,
           "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
-          "text-size": 12,
+          "text-size": 14,
           "text-max-width": 16,
-          "text-offset": [0, 1.5],
+          "text-offset": [0, 1.875],
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
@@ -205,7 +205,7 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
           "text-optional": true,
           "text-size": 12,
           "text-anchor": "top",
-          "text-offset": [0, 2],
+          "text-offset": [0, 2.9],
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",

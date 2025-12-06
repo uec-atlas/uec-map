@@ -1,4 +1,4 @@
-import { bbox, distance, nearestPointOnLine, point } from "@turf/turf";
+import { bbox, distance, nearestPointOnLine, point, bearing } from "@turf/turf";
 import type {
   Feature,
   FeatureCollection,
@@ -163,7 +163,7 @@ export function findNearestNetworkPoint(coords: Position): SnapResult | null {
 
   const pA = lineCoords[idx];
   const pB = lineCoords[idx + 1];
-  console.log(`Neighbor points: ${pA}, ${pB}`);
+
   if (!pA || !pB) return null;
 
   const distA = distance(snapped, pA, { units: "meters" });
@@ -183,9 +183,6 @@ export function findNearestNetworkPoint(coords: Position): SnapResult | null {
  */
 export function getBuildingEntrances(buildingId: string): SnapResult[] {
   const coordsList = buildingEntrances.get(buildingId);
-  console.log(
-    `Getting entrances for building ${buildingId}: ${coordsList?.length ?? 0}`,
-  );
   if (!coordsList) return [];
   return coordsList
     .map((c) => findNearestNetworkPoint(c))
@@ -205,6 +202,67 @@ export function calculateRoute(
 
   let bestPathCoordinates: Position[] | null = null;
   let minTotalDist = Infinity;
+
+  /**
+   * 180°折り返しを検出・修正する
+   */
+  const removeStraightBacktracks = (coords: Position[]): Position[] => {
+    const result: Position[] = [];
+    for (let i = 0; i < coords.length; i++) {
+      const curr = coords[i];
+      const prev = coords[i - 1];
+      if (!curr) continue;
+      if (i === 0 || !prev || curr[0] !== prev[0] || curr[1] !== prev[1]) {
+        result.push(curr);
+      }
+    }
+
+    let changed = true;
+    const BACKTRACK_THRESHOLD = 179;
+
+    while (changed && result.length >= 3) {
+      changed = false;
+      const first = result[0];
+      const last = result[result.length - 1];
+      if (!first || !last) break;
+
+      const nextResult: Position[] = [first];
+
+      for (let i = 1; i < result.length - 1; i++) {
+        const prev = result[i - 1];
+        const curr = result[i];
+        const next = result[i + 1];
+
+        if (!prev || !curr || !next) continue;
+
+        const pPrev = point(prev);
+        const pCurr = point(curr);
+        const pNext = point(next);
+
+        const bearingIn = bearing(pPrev, pCurr);
+        const bearingOut = bearing(pCurr, pNext);
+
+        let diff = Math.abs(bearingOut - bearingIn);
+        if (diff > 180) {
+          diff = 360 - diff;
+        }
+
+        // ほぼ180°なら折り返しと判定
+        if (diff >= BACKTRACK_THRESHOLD) {
+          changed = true;
+          continue;
+        }
+
+        nextResult.push(curr);
+      }
+
+      nextResult.push(last);
+      result.length = 0;
+      result.push(...nextResult);
+    }
+
+    return result;
+  };
 
   // 全ての入口候補 × スタートの両隣接 × ゴールの両隣接 の組み合わせを探索
   for (const endSnap of targets) {
@@ -235,7 +293,9 @@ export function calculateRoute(
             const pathCoords = pathNodes
               .reverse()
               .map((n) => [n.data.x, n.data.y]);
-            bestPathCoordinates = [startSnap.point, ...pathCoords, endSnap.point];
+            const fullCoords = [startSnap.point, ...pathCoords, endSnap.point];
+            // 180°折り返しを修正
+            bestPathCoordinates = removeStraightBacktracks(fullCoords);
           }
         }
       }

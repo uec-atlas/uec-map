@@ -1,10 +1,16 @@
 #!/bin/bash
+
+pushd "$(dirname "$0")"
+
 tippecanoe -o map.pmtiles \
   -r1 \
-  --no-feature-limit \
-  --detect-shared-borders \
-  --force \
+  -b 5 \
   -z 18 \
+  -d 14 \
+  --no-clipping \
+  --no-line-simplification \
+  --no-feature-limit \
+  --force \
   -L areas:<(ogr2ogr -f GeoJSONSeq /vsistdout/ areas.gpkg) \
   -L areas_label:<(ogr2ogr -f GeoJSONSeq /vsistdout/ areas.gpkg \
        -dialect sqlite \
@@ -31,3 +37,5 @@ ogr2ogr -f GeoJSON buildings.json buildings.gpkg -t_srs EPSG:4326
 ogr2ogr -f GeoJSON gates.json gates.gpkg -t_srs EPSG:4326
 ogr2ogr -f GeoJSON entrances.json entrances.gpkg -t_srs EPSG:4326
 ogr2ogr -f GeoJSON paths.json paths.gpkg -t_srs EPSG:4326
+
+popd

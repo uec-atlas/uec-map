@@ -1,5 +1,7 @@
 <template>
-  <NuxtPage />
+  <UApp>
+    <NuxtPage />
+  </UApp>
 </template>
 
 <style lang="scss">

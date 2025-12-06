@@ -20,12 +20,12 @@
       </MglMarker>
     </MglMap>
     <div
-      class="absolute top-4 right-4 z-50 pointer-events-auto w-fit h-fit flex flex-col space-y-2"
+      class="absolute flex-col-reverse md:flex-col top-17 right-2 md:top-auto md:right-auto md:bottom-2 md:left-2 z-50 pointer-events-auto w-fit h-fit flex gap-y-2"
     >
       <UFieldGroup
-        orientation="vertical"
-        v-show="mapState.zoom.value >= ZOOM_LEVELS.BUILDING_DETAILS"
-      >
+          orientation="vertical"
+          v-show="mapState.zoom.value >= ZOOM_LEVELS.BUILDING_DETAILS"
+        >
         <UButton
           color="neutral"
           class="cursor-pointer grid place-items-center"
@@ -54,10 +54,6 @@
           aria-label="Zoom out"
         />
       </UFieldGroup>
-    </div>
-    <div
-      class="absolute bottom-2 left-2 z-50 pointer-events-auto w-fit h-fit flex flex-col space-y-2"
-    >
       <UButton
         v-if="mapState.userLocation.value && isAroundUEC(mapState.userLocation.value)"
         class="cursor-pointer"
@@ -71,7 +67,7 @@
       <UFieldGroup orientation="vertical" class="pointer-events-auto">
         <UButton
           color="neutral"
-          class="cursor-pointer"
+          class="cursor-pointer grid place-items-center"
           icon="material-symbols:zoom-in"
           size="lg"
           variant="outline"
@@ -80,7 +76,7 @@
         />
         <UButton
           color="neutral"
-          class="cursor-pointer"
+          class="cursor-pointer grid place-items-center"
           icon="material-symbols:zoom-out"
           size="lg"
           variant="outline"
@@ -102,7 +98,7 @@ import BuildingsGeoJSON from "@/assets/buildings.json";
 import EntrancesGeoJSON from "@/assets/entrances.json";
 import PathsGeoJSON from "@/assets/paths.json";
 import { ZOOM_LEVELS } from "~/map-style/theme/zoom";
-import { center } from "@turf/turf";
+import { center, centroid } from "@turf/turf";
 
 initPathFinding(
   PathsGeoJSON as GeoJSON.FeatureCollection<GeoJSON.LineString>,
@@ -154,14 +150,16 @@ watch(
         // biome-ignore lint/style/noNonNullAssertion: Length checked above
         const feature = features[0]!;
         if (!layerType) return;
+        if(layerType === "room" && feature.properties.type === "corridor") return;
         const selectedObject: Partial<SelectedObject> = {
           type: layerType,
           id: feature.properties.id?.toString() || "",
           properties: feature.properties || {},
+          geometry: feature.geometry,
           coordinates:
             feature.geometry.type === "Point"
               ? (feature.geometry.coordinates as [number, number])
-              : (center(feature.geometry).geometry.coordinates as [
+              : (centroid(feature.geometry).geometry.coordinates as [
                   number,
                   number,
                 ]),
@@ -206,5 +204,8 @@ watch(
   },
 );
 
-const style = useMapStyle(mapState.floor, shouldUseExtrusion, language, mapState.pathFindResult);
+const style = useMapStyle(
+  shouldUseExtrusion,
+  language
+);
 </script>

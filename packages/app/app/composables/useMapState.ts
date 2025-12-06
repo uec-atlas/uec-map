@@ -1,10 +1,12 @@
 import type { LngLatLike, PaddingOptions } from "maplibre-gl";
+import type { PlaceInputValue } from "~/components/PlaceInput.vue";
 
 interface SelectedObjectBase {
   type: string;
   id: string;
   properties: Record<string, unknown>;
   coordinates: [number, number];
+  geometry: GeoJSON.Geometry;
 }
 
 interface SelectedBuilding extends SelectedObjectBase {
@@ -38,6 +40,7 @@ const mapState = {
   pitch: ref(0),
   center: ref(MAP_INITIAL_CENTER as [number, number]),
   selectedObject: ref(null) as Ref<SelectedObject | null>,
+  pathFindTo: ref<PlaceInputValue | null>(null),
   userLocation: computed(() =>
     userLocation.locatedAt.value
       ? ([

@@ -3,7 +3,11 @@
     :modal="false"
     v-model:open="drawerOpen"
     :direction="isDesktop ? 'right' : 'bottom'"
-    :class="isDesktop ? 'w-80' : 'h-1/2'"
+    class="shadow"
+    :handle="false"
+    handle-only
+    :inset="isDesktop"
+    :class="isDesktop && 'right-2 top-17 w-80 bottom-auto'"
   >
     <template #body>
       <section class="flex flex-col gap-6 items-start">
@@ -28,13 +32,13 @@
           </div>
         </header>
         <UButton
+          block
           class="cursor-pointer"
-          icon="material-symbols:alt-route"
+          icon="material-symbols:navigation"
           @click="executeRouteSearch"
         >
           経路を調べる
         </UButton>
-        <PlaceInput v-model="searchTarget"/>
       </section>
     </template>
   </UDrawer>
@@ -46,15 +50,13 @@ import {
   DARK_BUILDING_AREA_COLOR,
 } from "~/map-style/theme/colors";
 import type { PlaceInputValue } from "./PlaceInput.vue";
-import { bbox } from "@turf/turf";
 
 const {
-  map,
   selectedObject: _selectedObject,
+  pathFindTo: _externalFrom,
   padding,
-  pathFindResult,
 } = useMapState();
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isDesktop = useDesktopQuery();
 const selectedObject = ref(_selectedObject.value);
 const drawerOpen = computed({
   get: () => _selectedObject.value !== null,
@@ -73,72 +75,22 @@ watch(
   },
 );
 
-const searchTarget = ref<PlaceInputValue>();
 const executeRouteSearch = () => {
-  if (!searchTarget.value || !selectedObject.value) return;
-  const startSnaps: SnapResult[] = [];
-  if (selectedObject.value.type === "room") {
-    const s = getBuildingEntrances(selectedObject.value.building.id);
-    if (s) startSnaps.push(...s);
+  if (!selectedObject.value) return;
+  if(selectedObject.value.type === "room") {
+    _externalFrom.value = {
+      id: selectedObject.value.building.properties.id,
+      label: selectedObject.value.building.properties.name,
+      value: selectedObject.value.building,
+    } as PlaceInputValue;
   } else {
-    const s = getBuildingEntrances(selectedObject.value.id);
-    startSnaps.push(...s);
+    _externalFrom.value = {
+      id: selectedObject.value.properties.id,
+      label: selectedObject.value.properties.name,
+      value: selectedObject.value,
+    } as unknown as PlaceInputValue;
   }
-  if (startSnaps.length === 0) {
-    const s = findNearestNetworkPoint(selectedObject.value.coordinates);
-    if (s) startSnaps.push(s);
-  }
-  if (startSnaps.length === 0) {
-    console.warn("No road nearby for start point.");
-    return;
-  }
-
-  let endSnaps: SnapResult[] = [];
-
-  const buildingId = searchTarget.value.id;
-  endSnaps = getBuildingEntrances(buildingId);
-  console.log(`Building clicked: ${buildingId}, Entrances: ${endSnaps.length}`);
-
-  if (endSnaps.length === 0) {
-    const s = findNearestNetworkPoint(searchTarget.value.value.coordinates);
-    if (s) endSnaps = [s];
-  }
-
-  if (endSnaps.length === 0) {
-    console.warn("No road nearby.");
-    return;
-  }
-
-  const routeGeoJSON = calculateRoute(startSnaps, endSnaps, false);
-
-  if (routeGeoJSON) {
-    // 地図に描画
-    pathFindResult.value = routeGeoJSON;
-    const _bbox = bbox(routeGeoJSON);
-
-    map.value?.fitBounds(
-      [
-        [_bbox[0], _bbox[1]],
-        [_bbox[2], _bbox[3]],
-      ],
-      {
-        bearing: map.value.getBearing(),
-        padding: {
-          top: (padding.value.top ?? 0) + 50,
-          bottom: (padding.value.bottom ?? 0) + 50,
-          left: (padding.value.left ?? 0) + 50,
-          right: (padding.value.right ?? 0) + 50,
-        },
-      },
-    );
-
-    console.log(routeGeoJSON);
-    console.log("Route found!", routeGeoJSON.properties?.distance + "m");
-  } else {
-    alert(
-      "経路が見つかりませんでした（エリアが接続されていない可能性があります）",
-    );
-  }
+  drawerOpen.value = false;
 };
 
 const building = computed(() => {
@@ -179,10 +131,8 @@ watch(
   () => [drawerOpen.value, isDesktop.value],
   () => {
     if (drawerOpen.value && isDesktop.value) {
-      padding.value.right = 320;
       padding.value.bottom = 0;
     } else {
-      padding.value.right = 0;
       padding.value.bottom = isDesktop.value ? 0 : window.innerHeight / 2;
     }
   },

@@ -3,6 +3,7 @@
     <MapSearchbox />
     <Map />
     <MapDrawer/>
+    <RouteSearchDrawer />
   </div>
 </template>
 

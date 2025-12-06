@@ -37,7 +37,7 @@ export const FLOOR_ICON_BG_COLOR: Record<string, string> = {
 
 // Dark-mode variants
 export const DARK_TYPE_COLOR_MAP: Record<string, string> = {
-  misc: "#2f2f2f",
+  misc: "#3f3f3f",
   corridor: "#4b4b4b",
   elevator: "#5a5a5a",
   stairs: "#5a5a5a",
