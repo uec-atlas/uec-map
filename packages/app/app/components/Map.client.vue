@@ -33,7 +33,7 @@
           variant="outline"
           size="lg"
           :disabled="mapState.floor.value >= 10"
-          @click="mapState.floor.value = Math.min(mapState.floor.value + 1, 10)"
+          @click="upFloor"
           aria-label="Zoom in"
         />
         <UBadge
@@ -41,7 +41,7 @@
           color="neutral"
           variant="outline"
           size="lg"
-          :label="mapState.floor.value + 'F'"
+          :label="(mapState.floor.value > 0 ? '' : 'B') + Math.abs(mapState.floor.value) + 'F'"
         />
         <UButton
           color="neutral"
@@ -49,8 +49,8 @@
           icon="material-symbols:arrow-downward"
           variant="outline"
           size="lg"
-          :disabled="mapState.floor.value <= 1"
-          @click="mapState.floor.value = Math.max(mapState.floor.value - 1, 1)"
+          :disabled="mapState.floor.value <= -1"
+          @click="downFloor"
           aria-label="Zoom out"
         />
       </UFieldGroup>
@@ -111,6 +111,22 @@ const mapInstance = useMap();
 const mapState = useMapState();
 const shouldUseExtrusion = computed(() => mapState.pitch.value > 30);
 const language = ref("ja");
+
+const downFloor = () => {
+  if(mapState.floor.value === 1) {
+    mapState.floor.value = -1;
+  } else if(mapState.floor.value > -1) {
+    mapState.floor.value -= 1;
+  }
+}
+
+const upFloor = () => {
+  if(mapState.floor.value === -1) {
+    mapState.floor.value = 1;
+  } else if(mapState.floor.value < 10) {
+    mapState.floor.value += 1;
+  }
+}
 
 watch(
   () => mapInstance.isLoaded,
