@@ -88,7 +88,6 @@ import { bbox, length } from "@turf/turf";
 
 const {
   map,
-  padding,
   pathFindTo,
   pathFindResult,
 } = useMapState();
@@ -148,7 +147,7 @@ const executeRouteSearch = () => {
   }
   const startSnaps: SnapResult[] = placeFrom.value.value.type === "building" ? getBuildingEntrances(placeFrom.value.value.id) : [];
   if (startSnaps.length === 0) {
-    const s = findNearestNetworkPoint(placeFrom.value.value.coordinates);
+    const s = findNearestNetworkPoint(placeFrom.value.value.coordinate);
     if (s) startSnaps.push(s);
   }
   if (startSnaps.length === 0) {
@@ -158,8 +157,7 @@ const executeRouteSearch = () => {
 
   const endSnaps: SnapResult[] = placeTo.value.value.type === "building" ? getBuildingEntrances(placeTo.value.value.id) : [];
   if (endSnaps.length === 0) {
-    console.log(placeTo.value.value)
-    const s = findNearestNetworkPoint(placeTo.value.value.coordinates);
+    const s = findNearestNetworkPoint(placeTo.value.value.coordinate);
     if (s) endSnaps.push(s);
   }
   if (endSnaps.length === 0) {

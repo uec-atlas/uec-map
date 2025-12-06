@@ -5,7 +5,7 @@ interface SelectedObjectBase {
   type: string;
   id: string;
   properties: Record<string, unknown>;
-  coordinates: [number, number];
+  coordinate: [number, number];
   geometry: GeoJSON.Geometry;
 }
 
@@ -22,6 +22,7 @@ interface SelectedRoom extends SelectedObjectBase {
   building: {
     id: string;
     properties: Record<string, unknown>;
+    coordinate: [number, number];
   };
 }
 

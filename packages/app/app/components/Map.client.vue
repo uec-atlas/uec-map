@@ -156,7 +156,7 @@ watch(
           id: feature.properties.id?.toString() || "",
           properties: feature.properties || {},
           geometry: feature.geometry,
-          coordinates:
+          coordinate:
             feature.geometry.type === "Point"
               ? (feature.geometry.coordinates as [number, number])
               : (centroid(feature.geometry).geometry.coordinates as [
@@ -173,6 +173,11 @@ watch(
           selectedObject.building = {
             id: building?.properties.id || "",
             properties: building?.properties || {},
+            coordinate:
+                (centroid(building!.geometry as GeoJSON.MultiPolygon).geometry.coordinates as [
+                    number,
+                    number,
+                  ]),
           };
         }
         mapState.selectedObject.value = selectedObject as SelectedObject;
@@ -197,7 +202,7 @@ watch(
   (newVal) => {
     if (newVal) {
       mapState.jumpTo({
-        center: newVal.coordinates,
+        center: newVal.coordinate,
         zoom: Math.max(mapState.zoom.value, newVal.type === "room" ?  ZOOM_LEVELS.BUILDING_DETAILS : ZOOM_LEVELS.ALL_BUILDINGS),
       });
       if(newVal.type === "room") {

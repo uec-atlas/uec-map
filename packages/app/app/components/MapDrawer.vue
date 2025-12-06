@@ -83,7 +83,7 @@ const executeRouteSearch = () => {
       id: selectedObject.value.building.properties.id,
       label: selectedObject.value.building.properties.name,
       value: selectedObject.value.building,
-    } as PlaceInputValue;
+    } as unknown as PlaceInputValue;
   } else {
     _externalFrom.value = {
       id: selectedObject.value.properties.id,

@@ -32,9 +32,10 @@ tippecanoe -o map.pmtiles \
   -L entrances:<(ogr2ogr -f GeoJSONSeq /vsistdout/ entrances.gpkg) \
   -L paths:<(ogr2ogr -f GeoJSONSeq /vsistdout/ paths.gpkg)
 
-ogr2ogr -f GeoJSON areas.json areas.gpkg -t_srs EPSG:4326
-ogr2ogr -f GeoJSON buildings.json buildings.gpkg -t_srs EPSG:4326
-# floors.json: 複数レイヤーをマージ
+ogr2ogr -f GeoJSON areas.json areas.gpkg -t_srs EPSG:4326 -lco COORDINATE_PRECISION=6
+ogr2ogr -f GeoJSON buildings.json buildings.gpkg -t_srs EPSG:4326 -lco COORDINATE_PRECISION=6
+
+# floors.json: ループ内にも適用
 rm -f floors.json
 {
   echo '{"type":"FeatureCollection","features":['
@@ -44,12 +45,15 @@ rm -f floors.json
       echo -n ','
     fi
     first=false
-    ogr2ogr -f GeoJSON /vsistdout/ indoor_floors.gpkg "$layer" -t_srs EPSG:4326 | jq -c '.features[]' | tr '\n' ',' | sed 's/,$//'
+    # ここで丸めてから jq に渡すことで、jq の出力も6桁になります
+    ogr2ogr -f GeoJSON /vsistdout/ indoor_floors.gpkg "$layer" -t_srs EPSG:4326 -lco COORDINATE_PRECISION=6 \
+    | jq -c '.features[]' | tr '\n' ',' | sed 's/,$//'
   done
   echo ']}'
 } > floors.json
-ogr2ogr -f GeoJSON gates.json gates.gpkg -t_srs EPSG:4326
-ogr2ogr -f GeoJSON entrances.json entrances.gpkg -t_srs EPSG:4326
-ogr2ogr -f GeoJSON paths.json paths.gpkg -t_srs EPSG:4326
+
+ogr2ogr -f GeoJSON gates.json gates.gpkg -t_srs EPSG:4326 -lco COORDINATE_PRECISION=6
+ogr2ogr -f GeoJSON entrances.json entrances.gpkg -t_srs EPSG:4326 -lco COORDINATE_PRECISION=6
+ogr2ogr -f GeoJSON paths.json paths.gpkg -t_srs EPSG:4326 -lco COORDINATE_PRECISION=6
 
 popd

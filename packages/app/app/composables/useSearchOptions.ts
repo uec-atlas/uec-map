@@ -25,7 +25,7 @@ const searchOptions = [
         type: "building",
         id: building.properties.id as string,
         properties: building.properties,
-        coordinates: centroid(polygonToLine(building.geometry as unknown as Polygon))
+        coordinate: centroid(polygonToLine(building.geometry as unknown as Polygon))
           .geometry.coordinates,
         geometry: building.geometry,
       },
@@ -63,7 +63,7 @@ const searchOptions = [
         type: "gate",
         id: gate.properties.id as string,
         properties: gate.properties,
-        coordinates: gate.geometry.coordinates as [number, number],
+        coordinate: gate.geometry.coordinates as [number, number],
       },
     })),
   },
@@ -90,7 +90,7 @@ const searchOptions = [
             id: building.properties.id as string,
             properties: building.properties,
           },
-          coordinates: centroid(polygonToLine(room.geometry as unknown as Polygon))
+          coordinate: centroid(polygonToLine(room.geometry as unknown as Polygon))
             .geometry.coordinates,
           geometry: room.geometry,
         },
