@@ -171,6 +171,7 @@ watch(
               : false,
           );
           selectedObject.building = {
+            type: "building",
             id: building?.properties.id || "",
             properties: building?.properties || {},
             coordinate:

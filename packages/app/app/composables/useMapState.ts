@@ -20,6 +20,7 @@ interface SelectedGate extends SelectedObjectBase {
 interface SelectedRoom extends SelectedObjectBase {
   type: "room";
   building: {
+    type: "building";
     id: string;
     properties: Record<string, unknown>;
     coordinate: [number, number];
