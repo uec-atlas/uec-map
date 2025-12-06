@@ -80,7 +80,7 @@ const searchOptions = [
         id: `${index}`,
         label: name,
         suffix: room.properties.altname ? `${room.properties.altname}（${building.properties.name}）` : building.properties.name as string,
-        searchKey: `${building.properties.name} ${room.properties.name} ${room.properties.altname ?? ""} ${building.properties.name?.match(/[A-Z]+/)?.[0] ?? ""}${room.properties.name}`.trim(),
+        searchKey: `${building.properties.name} ${room.properties.name} ${room.properties.altname ?? ""} ${building.properties.name?.match(/.?[A-Z0-9]+/)?.[0] ?? ""}-${room.properties.name} ${building.properties.name?.match(/.?[A-Z0-9]+/)?.[0] ?? ""}${room.properties.name}`.trim(),
         icon: FLOOR_ICONS[room.properties.type as keyof typeof FLOOR_ICONS] || FLOOR_ICONS.default,
         value: {
           type: "room",
