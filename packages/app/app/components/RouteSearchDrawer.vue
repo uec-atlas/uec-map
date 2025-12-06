@@ -146,7 +146,7 @@ const executeRouteSearch = () => {
     searchError.value = true;
     return;
   }
-  const startSnaps = getBuildingEntrances(placeFrom.value.value.id);
+  const startSnaps: SnapResult[] = placeFrom.value.value.type === "building" ? getBuildingEntrances(placeFrom.value.value.id) : [];
   if (startSnaps.length === 0) {
     const s = findNearestNetworkPoint(placeFrom.value.value.coordinates);
     if (s) startSnaps.push(s);
@@ -156,7 +156,7 @@ const executeRouteSearch = () => {
     return;
   }
 
-  const endSnaps = getBuildingEntrances(placeTo.value.value.id);
+  const endSnaps: SnapResult[] = placeTo.value.value.type === "building" ? getBuildingEntrances(placeTo.value.value.id) : [];
   if (endSnaps.length === 0) {
     console.log(placeTo.value.value)
     const s = findNearestNetworkPoint(placeTo.value.value.coordinates);
