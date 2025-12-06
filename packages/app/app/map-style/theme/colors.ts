@@ -37,17 +37,17 @@ export const FLOOR_ICON_BG_COLOR: Record<string, string> = {
 
 // Dark-mode variants
 export const DARK_TYPE_COLOR_MAP: Record<string, string> = {
-  misc: "#3f3f3f",
-  corridor: "#4b4b4b",
-  elevator: "#5a5a5a",
-  stairs: "#5a5a5a",
-  lecture_room: "#27445f",
-  wc_universal: "#5a3d66",
-  wc_unknown: "#5b3a57",
-  wc_men: "#2b4f78",
-  wc_women: "#7a2f36",
-  common_space: "#6b5a00",
-  office: "#1f3f25",
+  misc: "#4a4a4a",
+  corridor: "#555555",
+  elevator: "#656565",
+  stairs: "#656565",
+  lecture_room: "#2f5270",
+  wc_universal: "#6b4a75",
+  wc_unknown: "#6b4766",
+  wc_men: "#3a5f88",
+  wc_women: "#8a3f46",
+  common_space: "#7a6a10",
+  office: "#2f5035",
 };
 
 export const DARK_BUILDING_AREA_COLOR: Record<string, string> = {

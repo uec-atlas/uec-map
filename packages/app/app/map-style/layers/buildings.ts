@@ -109,7 +109,7 @@ export const createBuildingIconLayers = defineLayerFactory(
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
         filter: ["!=", ["get", "type"], "utility"],
-        minzoom: ZOOM_LEVELS.MAIN_BUILDING,
+        minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         layout: {
           "text-padding": 0,

@@ -26,6 +26,21 @@ export const useMapStyle = (
   computed(() => {
     const { floor, selectedObject, pathFindResult } = useMapState();
     const mode = useColorMode().value as ColorMode;
+
+    // 文字・アイコンレイヤーを生成する関数
+    const createLabelAndIconLayers = () => [
+      ...createAreaLabelLayers(language.value, mode),
+      ...createBuildingDetailIconLayers(language.value, mode),
+      ...createGateLayers(language.value, mode),
+      ...createBuildingIconLayers(language.value, mode),
+      ...createFloorLayers(
+        floor.value,
+        shouldUseExtrusion.value,
+        language.value,
+        mode,
+      ),
+    ];
+
     return buildMapStyle({
       version: 8,
       sources: {
@@ -57,17 +72,8 @@ export const useMapStyle = (
         ...createBuildingLayers(mode),
         ...createEntrancesLayers(mode),
         ...createExtrusionLayers(floor.value, shouldUseExtrusion.value, mode),
-        ...createAreaLabelLayers(language.value, mode),
-        ...createBuildingDetailIconLayers(language.value, mode),
-        ...createGateLayers(language.value, mode),
-        ...createBuildingIconLayers(language.value, mode),
-        ...createFloorLayers(
-          floor.value,
-          shouldUseExtrusion.value,
-          language.value,
-          mode,
-        ),
-        ...createSelectedObjectLayers(mode)
+        ...createSelectedObjectLayers(mode),
+        ...createLabelAndIconLayers(),
       ],
     });
   });
