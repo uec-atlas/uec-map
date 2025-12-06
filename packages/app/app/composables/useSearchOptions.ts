@@ -4,6 +4,7 @@ import gatesGeoJSON from "@/assets/gates.json";
 import type { CommandPaletteGroup } from "@nuxt/ui";
 import { centroid, polygonToLine } from "@turf/turf";
 import type { Polygon } from "geojson";
+import { FLOOR_ICONS } from "~/map-style/theme/icons";
 
 const buildings = buildingsGeoJSON.features;
 const floors = floorsGeoJSON.features;
@@ -80,7 +81,7 @@ const searchOptions = [
         label: name,
         suffix: room.properties.altname ? `${room.properties.altname}（${building.properties.name}）` : building.properties.name as string,
         searchKey: `${building.properties.name} ${room.properties.name} ${room.properties.altname ?? ""} ${building.properties.name?.match(/[A-Z]+/)?.[0] ?? ""}${room.properties.name}`.trim(),
-        icon: "material-symbols:meeting-room",
+        icon: FLOOR_ICONS[room.properties.type as keyof typeof FLOOR_ICONS] || FLOOR_ICONS.default,
         value: {
           type: "room",
           id: `${index}`,
