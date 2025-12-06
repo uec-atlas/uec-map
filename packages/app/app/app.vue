@@ -6,8 +6,8 @@
 
 <style lang="scss">
 html, body, #__nuxt {
-  width: 100%;
-  height: 100%;
+  width: 100dvw;
+  height: 100dvh;
   margin: 0;
 }
 </style>

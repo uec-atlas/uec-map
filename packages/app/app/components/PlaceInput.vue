@@ -1,5 +1,5 @@
 <template>
-  <USelectMenu
+  <UInputMenu
     v-model="modelValue"
     :items="selectOptions"
     placeholder="場所を選択"

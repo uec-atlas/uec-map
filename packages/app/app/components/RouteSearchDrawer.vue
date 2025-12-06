@@ -30,7 +30,7 @@
       </div>
     </template>
     <template #body>
-      <section class="flex flex-col gap-4 items-start">
+      <section class="flex flex-col gap-4 items-start" ref="drawerContent">
         <UFormField label="出発地" class="w-full">
           <PlaceInput v-model="placeFrom"/>
         </UFormField>
@@ -96,6 +96,7 @@ const {
 const isDesktop = useDesktopQuery();
 const searchError = ref(false);
 const drawerOpen = ref(false);
+const drawerContent = useTemplateRef<HTMLElement>("drawerContent");
 
 watch(
   () => pathFindTo.value,
@@ -172,21 +173,26 @@ const executeRouteSearch = () => {
     pathFindResult.value = routeGeoJSON;
     const _bbox = bbox(routeGeoJSON);
 
-    map.value?.fitBounds(
-      [
-        [_bbox[0], _bbox[1]],
-        [_bbox[2], _bbox[3]],
-      ],
-      {
-        bearing: map.value.getBearing(),
-        padding: {
-          top: (padding.value.top ?? 0) + 50 + (isDesktop ? 0 : 100),
-          bottom: (padding.value.bottom ?? 0) + 50,
-          left: (padding.value.left ?? 0) + 50 + (isDesktop ? 100 : 0),
-          right: (padding.value.right ?? 0) + 50,
+    // ドロワー要素のサイズを取得してpadding計算
+    nextTick(() => {
+      const drawerHeight = drawerContent.value?.getBoundingClientRect().height ?? (isDesktop.value ? 50 : 300);
+
+      map.value?.fitBounds(
+        [
+          [_bbox[0], _bbox[1]],
+          [_bbox[2], _bbox[3]],
+        ],
+        {
+          bearing: map.value?.getBearing?.() ?? 0,
+          padding: {
+            top: isDesktop.value ? 50 : (drawerHeight + 100),
+            bottom: isDesktop.value ? 50 : 50,
+            left: isDesktop.value ? 100 : 50,
+            right: isDesktop.value ? 100 : 50,
+          },
         },
-      },
-    );
+      );
+    });
   } else {
     searchError.value = true;
   }

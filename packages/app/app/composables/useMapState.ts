@@ -56,11 +56,14 @@ const mapState = {
     pitch?: number;
     padding?: PaddingOptions;
   }) {
-    this.map.value?.easeTo({
-      center: options.center,
-      zoom: options.zoom ?? this.zoom.value,
-      pitch: options.pitch ?? this.pitch.value,
-      padding: options.padding ?? this.padding.value,
+    // ドロワーのアニメーションが完了するのを待つため、遅延実行
+    nextTick(() => {
+        this.map.value?.easeTo({
+          center: options.center,
+          zoom: options.zoom ?? this.zoom.value,
+          pitch: options.pitch ?? this.pitch.value,
+          padding: options.padding ?? this.padding.value,
+        });
     });
   },
   pathFindResult: ref<GeoJSON.Feature | null>(null),

@@ -10,7 +10,7 @@
     :class="isDesktop && 'right-2 top-17 w-80 bottom-auto'"
   >
     <template #body>
-      <section class="flex flex-col gap-6 items-start">
+      <section class="flex flex-col gap-6 items-start" ref="drawerContainer">
         <header class="flex flex-row items-stretch gap-4">
           <div
             class="rounded-full w-2"
@@ -56,6 +56,7 @@ const {
   pathFindTo: _externalFrom,
   padding,
 } = useMapState();
+const drawerContainer = useTemplateRef<HTMLElement>("drawerContainer");
 const isDesktop = useDesktopQuery();
 const selectedObject = ref(_selectedObject.value);
 const drawerOpen = computed({
@@ -130,10 +131,13 @@ const areaColor = computed(() => {
 watch(
   () => [drawerOpen.value, isDesktop.value],
   () => {
-    if (drawerOpen.value && isDesktop.value) {
-      padding.value.bottom = 0;
+    if (drawerOpen.value) {
+      nextTick(() => {
+        const height = drawerContainer.value?.getBoundingClientRect().height ?? window.innerHeight / 2;
+        padding.value.bottom = isDesktop.value ? 0 : height;
+      });
     } else {
-      padding.value.bottom = isDesktop.value ? 0 : window.innerHeight / 2;
+      padding.value.bottom = 0;
     }
   },
 );
