@@ -2,7 +2,7 @@
   "name": "@e-chan1007/uec-map",
   "private": true,
   "scripts": {
-    "build:map": "./map-src/build-map.sh",
+    "build:map": "./map-src/convert.sh",
     "app": "pnpm -F @e-chan1007/uec-map-app",
     "sdk": "pnpm -F @e-chan1007/uec-map-sdk",
     "dev": "pnpm -r --parallel run dev",

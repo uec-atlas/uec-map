@@ -1,0 +1,14 @@
+{
+  "name": "uec-map",
+  "compatibility_date": "2025-11-17",
+  "main": ".output/server/index.mjs",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".output/public"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  }
+}

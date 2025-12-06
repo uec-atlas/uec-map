@@ -1,0 +1,39 @@
+name: Build and Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: production
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+          auto-setup: true
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y gdal-bin tippecanoe
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: 4.53.0
+          packageManager: pnpm
+          workingDirectory: packages/app
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
