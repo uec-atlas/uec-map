@@ -282,7 +282,7 @@ export function calculateRoute(
             if (!currentNode || !nextNode) continue;
             const link = graph.getLink(currentNode.id, nextNode.id);
             if (link) {
-              graphDist += link.data.weight;
+              graphDist += useWeight ? link.data.weight : link.data.distance;
             }
           }
 
