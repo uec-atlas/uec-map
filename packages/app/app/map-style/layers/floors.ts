@@ -9,6 +9,7 @@ import { buildMatch } from "../utils/expressions";
 import { withLanguageSuffixFactory } from "../utils/lang";
 import { defineLayerFactory } from "../utils/layer";
 import { ZOOM_LEVELS } from "../theme/zoom";
+import { FLOOR_ICONS } from "../theme/icons";
 
 export const createFloorLayers = defineLayerFactory(
   (
@@ -80,29 +81,7 @@ export const createFloorLayers = defineLayerFactory(
         filter: floorIconFilter,
         layout: {
           visibility: shouldUseExtrusion ? "none" : "visible",
-          "icon-image": [
-            "match",
-            ["get", "type"],
-            "elevator",
-            MAP_ICONS["material-symbols:elevator-outline"],
-            "stairs",
-            MAP_ICONS["material-symbols:stairs-2"],
-            "lecture_room",
-            MAP_ICONS["material-symbols:co-present"],
-            "wc_universal",
-            MAP_ICONS["map:toilet"],
-            "wc_unknown",
-            MAP_ICONS["map:toilet"],
-            "wc_men",
-            MAP_ICONS["material-symbols:man"],
-            "wc_women",
-            MAP_ICONS["material-symbols:woman"],
-            "common_space",
-            MAP_ICONS["material-symbols:groups"],
-            "office",
-            MAP_ICONS["material-symbols:checkbook"],
-            MAP_ICONS["mdi:town-hall"],
-          ],
+          "icon-image": buildMatch("type", FLOOR_ICONS, FLOOR_ICONS["default"]),
           "icon-size": 0.8,
           "icon-padding": 0,
           "text-padding": 0,

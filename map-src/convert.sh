@@ -34,6 +34,20 @@ tippecanoe -o map.pmtiles \
 
 ogr2ogr -f GeoJSON areas.json areas.gpkg -t_srs EPSG:4326
 ogr2ogr -f GeoJSON buildings.json buildings.gpkg -t_srs EPSG:4326
+# floors.json: 複数レイヤーをマージ
+rm -f floors.json
+{
+  echo '{"type":"FeatureCollection","features":['
+  first=true
+  for layer in $(ogrinfo -q indoor_floors.gpkg | grep -o '[^ ]*_floors_[^ ]*'); do
+    if [ "$first" = false ]; then
+      echo -n ','
+    fi
+    first=false
+    ogr2ogr -f GeoJSON /vsistdout/ indoor_floors.gpkg "$layer" -t_srs EPSG:4326 | jq -c '.features[]' | tr '\n' ',' | sed 's/,$//'
+  done
+  echo ']}'
+} > floors.json
 ogr2ogr -f GeoJSON gates.json gates.gpkg -t_srs EPSG:4326
 ogr2ogr -f GeoJSON entrances.json entrances.gpkg -t_srs EPSG:4326
 ogr2ogr -f GeoJSON paths.json paths.gpkg -t_srs EPSG:4326

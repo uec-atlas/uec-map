@@ -198,8 +198,11 @@ watch(
     if (newVal) {
       mapState.jumpTo({
         center: newVal.coordinates,
-        zoom: Math.max(mapState.zoom.value, ZOOM_LEVELS.ALL_BUILDINGS),
+        zoom: Math.max(mapState.zoom.value, newVal.type === "room" ?  ZOOM_LEVELS.BUILDING_DETAILS : ZOOM_LEVELS.ALL_BUILDINGS),
       });
+      if(newVal.type === "room") {
+        mapState.floor.value = Number(newVal.properties.floor) || 1;
+      }
     }
   },
 );

@@ -16,7 +16,10 @@
         @update:open="searchTerm = ''"
       >
         <template #empty>
-          <span/>
+          <div class="p-4 text-sm text-muted-foreground" v-if="searchTerm.length > 0">
+            一致する結果が見つかりませんでした
+          </div>
+          <span v-else />
         </template>
       </UCommandPalette>
     </div>

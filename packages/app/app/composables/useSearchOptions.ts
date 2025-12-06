@@ -1,10 +1,12 @@
 import buildingsGeoJSON from "@/assets/buildings.json";
+import floorsGeoJSON from "@/assets/floors.json";
 import gatesGeoJSON from "@/assets/gates.json";
 import type { CommandPaletteGroup } from "@nuxt/ui";
 import { centroid, polygonToLine } from "@turf/turf";
 import type { Polygon } from "geojson";
 
 const buildings = buildingsGeoJSON.features;
+const floors = floorsGeoJSON.features;
 const gates = gatesGeoJSON.features;
 
 const typeOrder = { academic: 0, office: 1, community: 2, residential: 3, utility: 4 };
@@ -24,6 +26,7 @@ const searchOptions = [
         properties: building.properties,
         coordinates: centroid(polygonToLine(building.geometry as unknown as Polygon))
           .geometry.coordinates,
+        geometry: building.geometry,
       },
     }))
     .filter(({ label }) => label && label.trim() !== "")
@@ -63,9 +66,37 @@ const searchOptions = [
       },
     })),
   },
+  {
+    id: "rooms",
+    label: "講義室・施設",
+    items: floors.flatMap((room, index) => {
+      const name = room.properties.name as string;
+      if (!name || name.trim() === "") return [];
+      if(!["lecture_room", "common_space", "office"].includes(room.properties.type)) return [];
+      const building = buildings.find(b => b.properties.id === room.properties.building_id);
+      if(!building) return [];
+      return {
+        id: `${index}`,
+        label: name,
+        suffix: room.properties.altname ? `${room.properties.altname}（${building.properties.name}）` : building.properties.name as string,
+        searchKey: `${building.properties.name} ${room.properties.name} ${room.properties.altname ?? ""} ${building.properties.name?.match(/[A-Z]+/)?.[0] ?? ""}${room.properties.name}`.trim(),
+        icon: "material-symbols:meeting-room",
+        value: {
+          type: "room",
+          id: `${index}`,
+          properties: room.properties,
+          building,
+          coordinates: centroid(polygonToLine(room.geometry as unknown as Polygon))
+            .geometry.coordinates,
+          geometry: room.geometry,
+        },
+      };
+    }),
+  }
 ] as const satisfies CommandPaletteGroup[];
 
-const selectOptions = searchOptions.flatMap(group => group.items.map(item => ({
+const selectOptions = [searchOptions[0], searchOptions[1]]
+.flatMap(group => group.items.map(item => ({
   ...item,
   label: 'suffix' in item && item.suffix ? `${item.label} (${item.suffix})` : item.label,
 })));
@@ -75,7 +106,8 @@ export const useSearchOptions = () => {
     searchOptions,
     selectOptions,
     fuseOptions: {
-      keys: ['value.properties.name', 'value.properties.altname', 'value.properties.name:en', 'value.properties.altname:en'],
+      keys: ['searchKey', 'value.properties.name', 'value.properties.altname', 'value.properties.name:en', 'value.properties.altname:en'],
+      threshold: 0.2,
     }
   }
 }
