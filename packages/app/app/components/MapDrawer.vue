@@ -4,7 +4,7 @@
     v-model:open="drawerOpen"
     :direction="isDesktop ? 'right' : 'bottom'"
     class="shadow"
-    :handle="false"
+    :handle="!isDesktop"
     handle-only
     :inset="isDesktop"
     :class="isDesktop && 'right-2 top-17 w-80 bottom-auto'"
