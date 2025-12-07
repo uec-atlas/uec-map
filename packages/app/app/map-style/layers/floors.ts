@@ -12,11 +12,7 @@ import { ZOOM_LEVELS } from "../theme/zoom";
 import { FLOOR_ICONS } from "../theme/icons";
 
 export const createFloorLayers = defineLayerFactory(
-  (
-    floor: number,
-    shouldUseExtrusion: boolean,
-    mode: ColorMode,
-  ) => {
+  (floor: number, shouldUseExtrusion: boolean, mode: ColorMode) => {
     const TYPE = getTypeColorMap(mode);
 
     return [
@@ -119,6 +115,7 @@ export const createFloorIconLayers = defineLayerFactory(
         minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         filter: floorIconFilter,
         layout: {
+          visibility: shouldUseExtrusion ? "none" : "visible",
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
           "text-size": 12,
