@@ -19,7 +19,7 @@ export const createExtrusionLayers = defineLayerFactory(
         paint: {
           "fill-extrusion-color": "#AAAAAA",
           "fill-extrusion-base": ["*", ["-", ["get", "floor"], 1], 5],
-          "fill-extrusion-opacity": 0.75,
+          "fill-extrusion-opacity": 1,
           "fill-extrusion-vertical-gradient": false,
           "fill-extrusion-height": ["*", ["get", "floor"], 5],
         },

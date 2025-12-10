@@ -22,7 +22,7 @@ export const createBuildingLayers = defineLayerFactory((mode: ColorMode) => ({
       ["zoom"],
       ["match", ["get", "type"], "utility", 0.5, 1],
       ZOOM_LEVELS.BUILDING_DETAILS,
-      0.15,
+      0.2,
     ],
   },
 }));

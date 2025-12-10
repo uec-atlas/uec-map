@@ -26,3 +26,4 @@ logs
 map-src/map.pmtiles
 map-src/*.json
 .wrangler
+.pnpm-store

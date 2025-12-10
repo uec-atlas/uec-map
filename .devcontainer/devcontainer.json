@@ -1,0 +1,21 @@
+{
+  "name": "Ubuntu",
+  "image": "mcr.microsoft.com/devcontainers/base:noble",
+  "runArgs": ["--sysctl", "net.ipv6.conf.all.disable_ipv6=1"],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      },
+      "extensions": ["biomejs.biome", "joshbolduc.commitlint"]
+    }
+  },
+  "containerEnv": {
+    "PROTO_HOME": "/home/vscode/.proto"
+  },
+  "remoteEnv": {
+    "TZ": "Asia/Tokyo",
+    "PATH": "${containerEnv:PROTO_HOME}/shims:${containerEnv:PROTO_HOME}/bin:${containerEnv:PATH}"
+  },
+  "postCreateCommand": "/bin/zsh .devcontainer/postCreateCommand.sh"
+}

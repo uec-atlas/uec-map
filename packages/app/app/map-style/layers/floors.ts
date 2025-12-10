@@ -97,8 +97,6 @@ export const createFloorIconLayers = defineLayerFactory(
           "text-size": 14,
           "text-max-width": 16,
           "text-offset": [0, 2],
-          "icon-allow-overlap": true,
-          "text-allow-overlap": true,
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
@@ -126,7 +124,7 @@ export const createFloorIconLayers = defineLayerFactory(
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
           "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
-          "text-halo-width": 2,
+          "text-halo-width": 1,
         },
       },
     ];
