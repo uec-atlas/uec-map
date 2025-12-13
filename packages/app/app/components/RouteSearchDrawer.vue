@@ -16,7 +16,7 @@
     <template #title>
       <div class="flex flex-row items-center justify-between">
         <h2 class="flex flex-row items-center text-lg font-semibold gap-2">
-          <Icon name="material-symbols:navigation" class="text-primary" />
+          <Icon name="material-symbols:navigation" class="text-primary"/>
           <span>経路検索</span>
         </h2>
         <UButton
@@ -26,7 +26,8 @@
           variant="link"
           size="md"
           @click="drawerOpen = false"
-          aria-label="Close route search drawer" />
+          aria-label="Close route search drawer"
+        />
       </div>
     </template>
     <template #body>
@@ -68,7 +69,10 @@
             }]"
             :disabled="!placeFrom || !placeTo"
           >
-            <UButton icon="material-symbols:keyboard-arrow-down" class="cursor-pointer" />
+            <UButton
+              icon="material-symbols:keyboard-arrow-down"
+              class="cursor-pointer"
+            />
           </UDropdownMenu>
         </UFieldGroup>
       </section>
@@ -86,11 +90,7 @@
 import type { PlaceInputValue } from "./PlaceInput.vue";
 import { bbox, length } from "@turf/turf";
 
-const {
-  map,
-  pathFindTo,
-  pathFindResult,
-} = useMapState();
+const { map, pathFindTo, pathFindResult } = useMapState();
 
 const isDesktop = useDesktopQuery();
 const searchError = ref(false);
@@ -119,20 +119,23 @@ const useWeight = ref(true);
 const placeFrom = ref<PlaceInputValue>();
 const placeTo = ref<PlaceInputValue>();
 const distance = computed(() => {
-  if(!pathFindResult.value) return null;
-  return Math.ceil(length(pathFindResult.value, { units: 'meters' }) / 10) * 10;
+  if (!pathFindResult.value) return null;
+  return Math.ceil(length(pathFindResult.value, { units: "meters" }) / 10) * 10;
 });
 const duration = computed(() => {
-  if(!distance.value) return null;
-  const areas = new Set([placeFrom.value?.value.properties.area, placeTo.value?.value.properties.area]);
+  if (!distance.value) return null;
+  const areas = new Set([
+    placeFrom.value?.value.properties.area,
+    placeTo.value?.value.properties.area,
+  ]);
   let additionalTime = 0;
-  if(areas.has('east') && areas.has('west')) {
+  if (areas.has("east") && areas.has("west")) {
     additionalTime += 1;
   }
-  if(areas.has("west") && areas.has("100th")) {
+  if (areas.has("west") && areas.has("100th")) {
     additionalTime += 2;
   }
-  if(areas.has("east") && areas.has("100th")) {
+  if (areas.has("east") && areas.has("100th")) {
     additionalTime += 3;
   }
   // 80m/min
@@ -141,11 +144,14 @@ const duration = computed(() => {
 
 const executeRouteSearch = () => {
   if (!placeFrom.value || !placeTo.value) return;
-  if(placeFrom.value.value.id === placeTo.value.value.id) {
+  if (placeFrom.value.value.id === placeTo.value.value.id) {
     searchError.value = true;
     return;
   }
-  const startSnaps: SnapResult[] = placeFrom.value.value.type === "building" ? getBuildingEntrances(placeFrom.value.value.id) : [];
+  const startSnaps: SnapResult[] =
+    placeFrom.value.value.type === "building"
+      ? getBuildingEntrances(placeFrom.value.value.id)
+      : [];
   if (startSnaps.length === 0) {
     const s = findNearestNetworkPoint(placeFrom.value.value.coordinate);
     if (s) startSnaps.push(s);
@@ -155,7 +161,10 @@ const executeRouteSearch = () => {
     return;
   }
 
-  const endSnaps: SnapResult[] = placeTo.value.value.type === "building" ? getBuildingEntrances(placeTo.value.value.id) : [];
+  const endSnaps: SnapResult[] =
+    placeTo.value.value.type === "building"
+      ? getBuildingEntrances(placeTo.value.value.id)
+      : [];
   if (endSnaps.length === 0) {
     const s = findNearestNetworkPoint(placeTo.value.value.coordinate);
     if (s) endSnaps.push(s);
@@ -174,7 +183,9 @@ const executeRouteSearch = () => {
 
     // ドロワー要素のサイズを取得してpadding計算
     nextTick(() => {
-      const drawerHeight = drawerContent.value?.getBoundingClientRect().height ?? (isDesktop.value ? 50 : 300);
+      const drawerHeight =
+        drawerContent.value?.getBoundingClientRect().height ??
+        (isDesktop.value ? 50 : 300);
 
       map.value?.fitBounds(
         [
@@ -184,7 +195,7 @@ const executeRouteSearch = () => {
         {
           bearing: map.value?.getBearing?.() ?? 0,
           padding: {
-            top: isDesktop.value ? 50 : (drawerHeight + 100),
+            top: isDesktop.value ? 50 : drawerHeight + 100,
             bottom: isDesktop.value ? 50 : 50,
             left: isDesktop.value ? 100 : 50,
             right: isDesktop.value ? 100 : 50,

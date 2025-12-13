@@ -41,9 +41,7 @@
   },
   "overrides": [
     {
-      "includes": [
-        "**/*.vue"
-      ],
+      "includes": ["**/*.vue"],
       "formatter": {
         "enabled": true
       },

@@ -140,7 +140,7 @@ export const createFloorIconLayers = defineLayerFactory(
         filter: floorIconFilter,
         layout: {
           visibility: shouldUseExtrusion ? "none" : "visible",
-          "icon-image": buildMatch("type", FLOOR_ICONS, FLOOR_ICONS["default"]),
+          "icon-image": buildMatch("type", FLOOR_ICONS, FLOOR_ICONS.default),
           "icon-size": smallIconScale(isDesktop),
           "icon-padding": 0,
           "icon-allow-overlap": true,

@@ -266,7 +266,7 @@ export function calculateRoute(
 
   // 全ての入口候補 × スタートの両隣接 × ゴールの両隣接 の組み合わせを探索
   for (const endSnap of targets) {
-    for(const startSnap of starts) {
+    for (const startSnap of starts) {
       for (const sNode of startSnap.neighbors) {
         for (const eNode of endSnap.neighbors) {
           const pathNodes = (useWeight ? weightedPathFinder : pathFinder).find(
@@ -282,7 +282,9 @@ export function calculateRoute(
             if (!currentNode || !nextNode) continue;
             const link = graph.getLink(currentNode.id, nextNode.id);
             if (link) {
-              graphDist += useWeight ? link.data.distance * link.data.weight : link.data.distance;
+              graphDist += useWeight
+                ? link.data.distance * link.data.weight
+                : link.data.distance;
             }
           }
 
