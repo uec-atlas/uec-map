@@ -28,12 +28,15 @@
   },
   "devDependencies": {
     "@iconify-json/bi": "^1.2.6",
+    "@iconify-json/lucide": "^1.2.80",
     "@iconify-json/map": "^1.2.2",
     "@iconify-json/material-symbols": "^1.2.48",
     "@iconify-json/mdi": "^1.2.3",
     "@types/geojson": "^7946.0.16",
     "@types/rbush": "^4.0.0",
+    "biome": "^0.3.3",
     "pmtiles": "^4.3.0",
-    "sass-embedded": "^1.93.3"
+    "sass-embedded": "^1.93.3",
+    "typescript": "^5.9.3"
   }
 }

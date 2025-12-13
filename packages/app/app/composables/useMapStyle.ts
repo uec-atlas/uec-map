@@ -12,7 +12,10 @@ import {
   createBuildingLayers,
 } from "../map-style/layers/buildings";
 import { createExtrusionLayers } from "../map-style/layers/extrusion";
-import { createFloorLayers, createFloorIconLayers } from "../map-style/layers/floors";
+import {
+  createFloorLayers,
+  createFloorIconLayers,
+} from "../map-style/layers/floors";
 import { createGateLayers } from "../map-style/layers/gates";
 import { createOsmLayers } from "../map-style/layers/osm";
 import { createPathLayers } from "../map-style/layers/paths";
@@ -22,6 +25,7 @@ import { createSelectedObjectLayers } from "~/map-style/layers/selectedObject";
 export const useMapStyle = (
   shouldUseExtrusion: Ref<boolean>,
   language: Ref<string>,
+  isDesktop: Ref<boolean>,
 ) =>
   computed(() => {
     const { floor, selectedObject, pathFindResult } = useMapState();
@@ -31,13 +35,14 @@ export const useMapStyle = (
     const createLabelAndIconLayers = () => [
       ...createAreaLabelLayers(language.value, mode),
       ...createBuildingDetailIconLayers(language.value, mode),
-      ...createGateLayers(language.value, mode),
-      ...createBuildingIconLayers(language.value, mode),
+      ...createGateLayers(language.value, mode, isDesktop.value),
+      ...createBuildingIconLayers(language.value, mode, isDesktop.value),
       ...createFloorIconLayers(
         floor.value,
         shouldUseExtrusion.value,
         language.value,
         mode,
+        isDesktop.value,
       ),
     ];
 
@@ -51,11 +56,20 @@ export const useMapStyle = (
         },
         pathFindResult: {
           type: "geojson",
-          data: { type: "FeatureCollection", features: pathFindResult.value ? [pathFindResult.value] : []},
+          data: {
+            type: "FeatureCollection",
+            features: pathFindResult.value ? [pathFindResult.value] : [],
+          },
         },
         selectedObject: {
           type: "geojson",
-          data: { type: "Feature", geometry: selectedObject.value ? selectedObject.value.geometry : { type: "Polygon", coordinates: [] }, properties: {} },
+          data: {
+            type: "Feature",
+            geometry: selectedObject.value
+              ? selectedObject.value.geometry
+              : { type: "Polygon", coordinates: [] },
+            properties: {},
+          },
         },
       },
       layers: [

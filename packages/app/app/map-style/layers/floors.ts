@@ -9,7 +9,13 @@ import { buildMatch } from "../utils/expressions";
 import { withLanguageSuffixFactory } from "../utils/lang";
 import { defineLayerFactory } from "../utils/layer";
 import { ZOOM_LEVELS } from "../theme/zoom";
-import { FLOOR_ICONS } from "../theme/icons";
+import {
+  FLOOR_ICONS,
+  smallIcon,
+  smallLabel,
+  smallIconScale,
+} from "../theme/icons";
+import type { LayerSpecification } from "maplibre-gl";
 
 export const createFloorLayers = defineLayerFactory(
   (floor: number, shouldUseExtrusion: boolean, mode: ColorMode) => {
@@ -39,7 +45,8 @@ export const createFloorIconLayers = defineLayerFactory(
     shouldUseExtrusion: boolean,
     language: string,
     mode: ColorMode,
-  ) => {
+    isDesktop = true,
+  ): LayerSpecification[] => {
     const withLanguageSuffix = withLanguageSuffixFactory(language);
     const FLOOR_BG = getFloorIconBgColor(mode);
 
@@ -59,7 +66,7 @@ export const createFloorIconLayers = defineLayerFactory(
         filter: floorIconFilter,
         layout: { visibility: shouldUseExtrusion ? "none" : "visible" },
         paint: {
-          "circle-radius": 16,
+          "circle-radius": smallIcon(isDesktop),
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -74,14 +81,14 @@ export const createFloorIconLayers = defineLayerFactory(
         filter: floorIconFilter,
         layout: { visibility: shouldUseExtrusion ? "none" : "visible" },
         paint: {
-          "circle-radius": 14,
+          "circle-radius": smallIcon(isDesktop),
           "circle-color": buildMatch("type", FLOOR_BG, "#969696"),
           "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
       },
       {
-        id: "floors-label",
+        id: "floors-text-symbol",
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "floors_label",
@@ -89,18 +96,15 @@ export const createFloorIconLayers = defineLayerFactory(
         filter: floorIconFilter,
         layout: {
           visibility: shouldUseExtrusion ? "none" : "visible",
-          "icon-image": buildMatch("type", FLOOR_ICONS, FLOOR_ICONS["default"]),
-          "icon-size": 0.8,
-          "icon-padding": 0,
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("name")],
-          "text-size": 14,
+          "text-size": smallLabel(isDesktop),
           "text-max-width": 16,
           "text-offset": [0, 2],
+          "text-allow-overlap": false,
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
-          "icon-color": "#FFFFFF",
           "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
           "text-halo-width": 1,
         },
@@ -116,10 +120,10 @@ export const createFloorIconLayers = defineLayerFactory(
           visibility: shouldUseExtrusion ? "none" : "visible",
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
-          "text-size": 12,
+          "text-size": smallLabel(isDesktop),
           "text-anchor": "top",
-          "text-optional": true,
-          "text-offset": [0, 3],
+          "text-offset": [0, 2.75],
+          "text-allow-overlap": false,
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
@@ -127,6 +131,26 @@ export const createFloorIconLayers = defineLayerFactory(
           "text-halo-width": 1,
         },
       },
-    ];
+      {
+        id: "floors-icon-symbol",
+        type: "symbol",
+        source: UEC_MAP_SOURCE_ID,
+        "source-layer": "floors_label",
+        minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
+        filter: floorIconFilter,
+        layout: {
+          visibility: shouldUseExtrusion ? "none" : "visible",
+          "icon-image": buildMatch("type", FLOOR_ICONS, FLOOR_ICONS["default"]),
+          "icon-size": smallIconScale(isDesktop),
+          "icon-padding": 0,
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": false,
+          "icon-optional": false,
+        },
+        paint: {
+          "icon-color": "#FFFFFF",
+        },
+      },
+    ] as unknown as LayerSpecification[];
   },
 );

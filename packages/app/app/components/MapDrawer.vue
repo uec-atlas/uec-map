@@ -17,9 +17,12 @@
             :style="{ backgroundColor: areaColor }"
           />
           <div class="flex flex-col gap-2 py-4">
-            <span class="text-sm text-muted-foreground">
+            <span class="text-sm text-muted-foreground" v-if="selectedObject">
               {{ areaLabel }}
               {{ building?.properties.name || "" }}
+              {{ selectedObject.type === "room"
+                ? formatFloorNumber(selectedObject.properties.floor)
+                : "" }}
             </span>
             <h2 class="text-xl font-semibold">
               {{ selectedObject?.properties.name || "名称未設定の地点" }}
@@ -78,7 +81,7 @@ watch(
 
 const executeRouteSearch = () => {
   if (!selectedObject.value) return;
-  if(selectedObject.value.type === "room") {
+  if (selectedObject.value.type === "room") {
     _externalFrom.value = {
       id: selectedObject.value.building.properties.id,
       label: selectedObject.value.building.properties.name,
@@ -133,7 +136,9 @@ watch(
   () => {
     if (drawerOpen.value) {
       nextTick(() => {
-        const height = drawerContainer.value?.getBoundingClientRect().height ?? window.innerHeight / 2;
+        const height =
+          drawerContainer.value?.getBoundingClientRect().height ??
+          window.innerHeight / 2;
         padding.value.bottom = isDesktop.value ? 0 : height;
       });
     } else {

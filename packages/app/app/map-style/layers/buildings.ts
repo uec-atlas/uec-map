@@ -5,7 +5,17 @@ import {
   type ColorMode,
 } from "../theme/colors";
 import { ZOOM_LEVELS } from "../theme/zoom";
+import {
+  largeLabel,
+  smallLabel,
+  largeIcon,
+  smallIcon,
+  largeIconScale,
+  scaledSmallIconScale,
+  overlap,
+} from "../theme/icons";
 import { buildMatch } from "../utils/expressions";
+import type { LayerSpecification } from "maplibre-gl";
 import { withLanguageSuffixFactory } from "../utils/lang";
 import { defineLayerFactory } from "../utils/layer";
 
@@ -28,9 +38,14 @@ export const createBuildingLayers = defineLayerFactory((mode: ColorMode) => ({
 }));
 
 export const createBuildingIconLayers = defineLayerFactory(
-  (language: string, mode: ColorMode) => {
+  (
+    language: string,
+    mode: ColorMode,
+    isDesktop = true,
+  ): LayerSpecification[] => {
     const withLanguageSuffix = withLanguageSuffixFactory(language);
     const BUILDING_TYPE = getBuildingTypeIconColor(mode);
+
     return [
       {
         id: "buildings-icon-shadow",
@@ -41,7 +56,7 @@ export const createBuildingIconLayers = defineLayerFactory(
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         paint: {
-          "circle-radius": 18,
+          "circle-radius": largeIcon(isDesktop),
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -56,14 +71,14 @@ export const createBuildingIconLayers = defineLayerFactory(
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         paint: {
-          "circle-radius": 16,
+          "circle-radius": largeIcon(isDesktop),
           "circle-color": buildMatch("type", BUILDING_TYPE, "#969696"),
           "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
       },
       {
-        id: "buildings-label",
+        id: "buildings-icon-symbol",
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
@@ -87,24 +102,40 @@ export const createBuildingIconLayers = defineLayerFactory(
             MAP_ICONS["material-symbols:square"],
           ],
           "icon-padding": 0,
-          "text-padding": 0,
-          "text-allow-overlap": false,
           "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+          "icon-size": largeIconScale(isDesktop),
+          "icon-optional": false,
+        },
+        paint: {
+          "icon-color": "#FFFFFF",
+        },
+      },
+      {
+        id: "buildings-text-symbol",
+        type: "symbol",
+        source: UEC_MAP_SOURCE_ID,
+        "source-layer": "buildings_label",
+        filter: ["!=", ["get", "type"], "utility"],
+        minzoom: ZOOM_LEVELS.MAIN_BUILDING,
+        maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
+        layout: {
           "text-field": ["get", withLanguageSuffix("name")],
-          "text-optional": true,
-          "text-size": 16,
+          "text-optional": false,
+          "text-size": largeLabel(isDesktop),
           "text-max-width": 16,
-          "text-offset": [0, 1.75],
+          "text-offset": [0, 2],
+          "text-allow-overlap": overlap(),
+          "text-padding": 0,
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
-          "icon-color": "#FFFFFF",
           "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
           "text-halo-width": 2,
         },
       },
       {
-        id: "buildings-alt-label",
+        id: "buildings-alt-text",
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
@@ -114,10 +145,10 @@ export const createBuildingIconLayers = defineLayerFactory(
         layout: {
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
-          "text-size": 12,
+          "text-size": smallLabel(isDesktop),
           "text-anchor": "top",
-          "text-optional": true,
-          "text-offset": [0, 3.25],
+          "text-allow-overlap": overlap(),
+          "text-offset": [0, 3.125],
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
@@ -125,12 +156,16 @@ export const createBuildingIconLayers = defineLayerFactory(
           "text-halo-width": 2,
         },
       },
-    ];
+    ] as unknown as LayerSpecification[];
   },
 );
 
 export const createBuildingDetailIconLayers = defineLayerFactory(
-  (language: string, mode: ColorMode) => {
+  (
+    language: string,
+    mode: ColorMode,
+    isDesktop = true,
+  ): LayerSpecification[] => {
     const withLanguageSuffix = withLanguageSuffixFactory(language);
     return [
       {
@@ -142,7 +177,7 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         paint: {
-          "circle-radius": 16,
+          "circle-radius": smallIcon(isDesktop),
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -157,14 +192,14 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         paint: {
-          "circle-radius": 14,
+          "circle-radius": smallIcon(isDesktop),
           "circle-color": "#969696",
           "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
       },
       {
-        id: "buildings-detail-label",
+        id: "buildings-detail-icon",
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
@@ -173,26 +208,43 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         layout: {
           "icon-image": MAP_ICONS["material-symbols:room-preferences"],
-          "icon-size": 0.8,
+          "icon-size": scaledSmallIconScale(isDesktop, 0.7),
+          "icon-optional": false,
+          "icon-ignore-placement": true,
           "icon-padding": 0,
-          "text-padding": 0,
-          "text-allow-overlap": false,
           "icon-allow-overlap": true,
+        },
+        paint: {
+          "icon-color": "#FFFFFF",
+        },
+      },
+      {
+        id: "buildings-detail-text",
+        type: "symbol",
+        source: UEC_MAP_SOURCE_ID,
+        "source-layer": "buildings_label",
+        filter: ["==", ["get", "type"], "utility"],
+        minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
+        maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
+        layout: {
           "text-field": ["get", withLanguageSuffix("name")],
           "text-optional": true,
-          "text-size": 14,
+          "text-size": smallLabel(isDesktop),
           "text-max-width": 16,
-          "text-offset": [0, 1.875],
+          "text-anchor": "top",
+          "text-allow-overlap": overlap(),
+          "text-offset": [0, 1.675],
+          "text-padding": 0,
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
-          "icon-color": "#FFFFFF",
           "text-halo-color": mode === "dark" ? "#000000" : "#FFFFFF",
           "text-halo-width": 1,
         },
       },
+      // detail alt text
       {
-        id: "buildings-detail-alt-label",
+        id: "buildings-detail-alt-text",
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
         "source-layer": "buildings_label",
@@ -203,9 +255,10 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
           "text-padding": 0,
           "text-field": ["get", withLanguageSuffix("altname")],
           "text-optional": true,
-          "text-size": 12,
+          "text-size": smallLabel(isDesktop),
           "text-anchor": "top",
-          "text-offset": [0, 2.9],
+          "text-allow-overlap": overlap(),
+          "text-offset": [0, 3],
         },
         paint: {
           "text-color": mode === "dark" ? "#FFFFFF" : "#000000",
@@ -213,6 +266,6 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
           "text-halo-width": 1,
         },
       },
-    ];
+    ] as unknown as LayerSpecification[];
   },
 );

@@ -23,9 +23,9 @@
       class="absolute flex-col-reverse md:flex-col top-17 right-2 md:top-auto md:right-auto md:bottom-2 md:left-2 z-50 pointer-events-auto w-fit h-fit flex gap-y-2"
     >
       <UFieldGroup
-          orientation="vertical"
-          v-show="mapState.zoom.value >= ZOOM_LEVELS.BUILDING_DETAILS"
-        >
+        orientation="vertical"
+        v-show="mapState.zoom.value >= ZOOM_LEVELS.BUILDING_DETAILS"
+      >
         <UButton
           color="neutral"
           class="cursor-pointer grid place-items-center"
@@ -41,7 +41,7 @@
           color="neutral"
           variant="outline"
           size="lg"
-          :label="(mapState.floor.value > 0 ? '' : 'B') + Math.abs(mapState.floor.value) + 'F'"
+          :label="formatFloorNumber(mapState.floor.value)"
         />
         <UButton
           color="neutral"
@@ -111,32 +111,39 @@ const mapInstance = useMap();
 const mapState = useMapState();
 const shouldUseExtrusion = computed(() => mapState.pitch.value > 30);
 const language = ref("ja");
+const isDesktop = useDesktopQuery();
 
 const downFloor = () => {
-  if(mapState.floor.value === 1) {
+  if (mapState.floor.value === 1) {
     mapState.floor.value = -1;
-  } else if(mapState.floor.value > -1) {
+  } else if (mapState.floor.value > -1) {
     mapState.floor.value -= 1;
   }
-}
+};
 
 const upFloor = () => {
-  if(mapState.floor.value === -1) {
+  if (mapState.floor.value === -1) {
     mapState.floor.value = 1;
-  } else if(mapState.floor.value < 10) {
+  } else if (mapState.floor.value < 10) {
     mapState.floor.value += 1;
   }
-}
+};
 
 watch(
-  () => mapInstance.isLoaded,
-  async (isLoaded) => {
-    if (!isLoaded || !mapInstance.map) return;
+  () => mapInstance.isMounted,
+  async (isMounted) => {
+    if (!isMounted || !mapInstance.map) return;
     const map = mapInstance.map;
     mapState.map.value = map;
     await loadMapIcons(map);
 
-    const interactiveLayers = ["buildings", "floors", "gates-label"];
+    // query both icon and text symbol layers for gates so clicks hit either
+    const interactiveLayers = [
+      "buildings",
+      "floors",
+      "gates-icon-symbol",
+      "gates-text-symbol",
+    ];
 
     map.on("pitch", () => {
       mapState.pitch.value = map.getPitch();
@@ -160,13 +167,15 @@ watch(
           {
             buildings: "building",
             floors: "room",
-            "gates-label": "gate",
+            "gates-icon-symbol": "gate",
+            "gates-text-symbol": "gate",
           } as const
         )[features[0]?.layer.id as string];
         // biome-ignore lint/style/noNonNullAssertion: Length checked above
         const feature = features[0]!;
         if (!layerType) return;
-        if(layerType === "room" && feature.properties.type === "corridor") return;
+        if (layerType === "room" && feature.properties.type === "corridor")
+          return;
         const selectedObject: Partial<SelectedObject> = {
           type: layerType,
           id: feature.properties.id?.toString() || "",
@@ -186,16 +195,22 @@ watch(
               ? bld.properties.id === feature.properties.building_id
               : false,
           );
-          selectedObject.building = {
-            type: "building",
-            id: building?.properties.id || "",
-            properties: building?.properties || {},
-            coordinate:
-                (centroid(building!.geometry as GeoJSON.MultiPolygon).geometry.coordinates as [
-                    number,
-                    number,
-                  ]),
-          };
+          if (building) {
+            selectedObject.building = {
+              type: "building",
+              id: building.properties.id || "",
+              properties: building.properties || {},
+              coordinate: centroid(building.geometry as GeoJSON.MultiPolygon)
+                .geometry.coordinates as [number, number],
+            };
+          } else {
+            selectedObject.building = {
+              type: "building",
+              id: "",
+              properties: {},
+              coordinate: [0, 0],
+            };
+          }
         }
         mapState.selectedObject.value = selectedObject as SelectedObject;
       } else {
@@ -220,17 +235,19 @@ watch(
     if (newVal) {
       mapState.jumpTo({
         center: newVal.coordinate,
-        zoom: Math.max(mapState.zoom.value, newVal.type === "room" ?  ZOOM_LEVELS.BUILDING_DETAILS : ZOOM_LEVELS.ALL_BUILDINGS),
+        zoom: Math.max(
+          mapState.zoom.value,
+          newVal.type === "room"
+            ? ZOOM_LEVELS.BUILDING_DETAILS
+            : ZOOM_LEVELS.ALL_BUILDINGS,
+        ),
       });
-      if(newVal.type === "room") {
+      if (newVal.type === "room") {
         mapState.floor.value = Number(newVal.properties.floor) || 1;
       }
     }
   },
 );
 
-const style = useMapStyle(
-  shouldUseExtrusion,
-  language
-);
+const style = useMapStyle(shouldUseExtrusion, language, isDesktop);
 </script>
