@@ -20,7 +20,7 @@
       </MglMarker>
     </MglMap>
     <div
-      class="absolute flex-col-reverse md:flex-col top-17 right-2 md:top-auto md:right-auto md:bottom-2 md:left-2 z-50 pointer-events-auto w-fit h-fit flex gap-y-2"
+      class="absolute flex-col-reverse md:flex-col top-17 right-2 md:top-auto md:right-auto md:bottom-2 md:left-2 z-50 pointer-events-auto w-fit h-fit flex gap-y-2 print:hidden"
     >
       <UFieldGroup
         orientation="vertical"

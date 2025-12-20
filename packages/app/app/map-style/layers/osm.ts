@@ -3,14 +3,14 @@ import { defineLayerFactory } from "../utils/layer";
 
 export const createOsmLayers = defineLayerFactory((theme: ColorMode) => [
   {
-    id: "water",
+    id: "osm-water",
     type: "fill",
     source: "osm",
     "source-layer": "water",
     paint: { "fill-color": theme === "dark" ? "#0B0B0B" : "#ddecfcff" },
   },
   {
-    id: "buildings-2d",
+    id: "osm-buildings",
     type: "fill",
     source: "osm",
     "source-layer": "building",
@@ -21,7 +21,7 @@ export const createOsmLayers = defineLayerFactory((theme: ColorMode) => [
     },
   },
   {
-    id: "roads-minor",
+    id: "osm-roads-minor",
     type: "line",
     source: "osm",
     "source-layer": "transportation",
@@ -33,7 +33,7 @@ export const createOsmLayers = defineLayerFactory((theme: ColorMode) => [
     },
   },
   {
-    id: "roads-major",
+    id: "osm-roads-major",
     type: "line",
     source: "osm",
     "source-layer": "transportation",

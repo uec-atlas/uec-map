@@ -1,4 +1,4 @@
-import { buildMapStyle } from "@e-chan1007/uec-map-sdk";
+import { buildMapStyle, getBundledPMTilesUrl } from "@e-chan1007/uec-map-sdk";
 import type { Ref } from "vue";
 import { computed } from "vue";
 import { createEntrancesLayers } from "~/map-style/layers/entrances";
@@ -46,7 +46,7 @@ export const useMapStyle = (
       ),
     ];
 
-    return buildMapStyle({
+    return buildMapStyle(getBundledPMTilesUrl(), {
       version: 8,
       sources: {
         osm: {

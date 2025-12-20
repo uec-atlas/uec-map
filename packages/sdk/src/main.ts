@@ -8,21 +8,26 @@ import bundledPMTiles from "./assets/map.pmtiles?inline";
 
 export const UEC_MAP_SOURCE_ID = "uec-map";
 
-function dataURItoBlob(dataURI: string) {
-  const byteString = atob(dataURI.split(",")[1]);
-  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+const dataURItoBlob = (dataURI: string) => {
+  const [header, data] = dataURI.split(",");
+  const byteString = atob(data);
+  const mimeString = header.split(":")[1].split(";")[0];
   const ab = new ArrayBuffer(byteString.length);
   const ia = new Uint8Array(ab);
   for (let i = 0; i < byteString.length; i++) {
     ia[i] = byteString.charCodeAt(i);
   }
-  const blob = new Blob([ab], { type: mimeString });
-  return blob;
-}
+  return new Blob([ab], { type: mimeString });
+};
 
-const bundledPMTilesUrl = bundledPMTiles.startsWith("data:")
-  ? URL.createObjectURL(dataURItoBlob(bundledPMTiles))
-  : bundledPMTiles;
+let cachedBundledPMTilesUrl: string | undefined;
+export function getBundledPMTilesUrl() {
+  if (cachedBundledPMTilesUrl) return cachedBundledPMTilesUrl;
+  cachedBundledPMTilesUrl = bundledPMTiles.startsWith("data:")
+    ? URL.createObjectURL(dataURItoBlob(bundledPMTiles))
+    : bundledPMTiles;
+  return cachedBundledPMTilesUrl;
+}
 
 export function setupTiles(lib: typeof maplibregl = maplibregl) {
   const protocol = new pmtiles.Protocol();
@@ -31,11 +36,12 @@ export function setupTiles(lib: typeof maplibregl = maplibregl) {
 }
 
 export function buildMapStyle(
+  pmtilesUrl: string,
   userStyle?: StyleSpecification,
 ): StyleSpecification {
   const pmtilesSource: SourceSpecification = {
     type: "vector",
-    url: `pmtiles://${bundledPMTilesUrl}`,
+    url: `pmtiles://${pmtilesUrl}`,
     attribution: "&copy; e-chan1007",
   };
 
@@ -72,28 +78,35 @@ export function buildMapStyle(
   };
 }
 
-export interface EmbedMapOptions extends maplibregl.MapOptions {
+export interface EmbedMapOptions extends Omit<maplibregl.MapOptions, "style"> {
+  pmtilesUrl: string;
   style?: StyleSpecification;
 }
 
 export class EmbedMap {
   public map: maplibregl.Map;
+  private pmtilesUrl: string;
 
   constructor(options: EmbedMapOptions) {
     setupTiles(maplibregl);
 
-    const style = buildMapStyle(options.style);
+    const { pmtilesUrl, style: userStyle, ...mapOptions } = options;
+    this.pmtilesUrl = pmtilesUrl;
+    const style = buildMapStyle(pmtilesUrl, userStyle);
 
     this.map = new maplibregl.Map({
-      container: options.container,
+      ...mapOptions,
       style: style,
-      center: options.center || [139.7, 35.6],
-      zoom: options.zoom || 10,
+      center: mapOptions.center || [139.7, 35.6],
+      zoom: mapOptions.zoom || 10,
     });
   }
 
-  public setStyle(userStyle: StyleSpecification) {
-    const style = buildMapStyle(userStyle);
+  public setStyle(userStyle?: StyleSpecification, pmtilesUrl?: string) {
+    if (pmtilesUrl) {
+      this.pmtilesUrl = pmtilesUrl;
+    }
+    const style = buildMapStyle(this.pmtilesUrl, userStyle);
     this.map.setStyle(style);
   }
 }
