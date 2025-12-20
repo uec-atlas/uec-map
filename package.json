@@ -9,6 +9,6 @@
     "build": "pnpm build:map && pnpm -r run build"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.8"
+    "@biomejs/biome": "^2.3.10"
   }
 }

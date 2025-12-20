@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -26,9 +26,6 @@
     }
   },
   "html": {
-    "formatter": {
-      "enabled": true
-    },
     "experimentalFullSupportEnabled": true
   },
   "assist": {
@@ -41,7 +38,9 @@
   },
   "overrides": [
     {
-      "includes": ["**/*.vue"],
+      "includes": [
+        "**/*.vue"
+      ],
       "formatter": {
         "enabled": true
       },
