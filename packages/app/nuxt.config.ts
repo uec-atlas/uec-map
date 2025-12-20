@@ -21,6 +21,13 @@ export default defineNuxtConfig({
     ],
   ],
   css: ["@/assets/style.css"],
+  routeRules: {
+    "/ogp.png": {
+      headers: {
+        "cache-control": "public, max-age=31536000, immutable",
+      },
+    },
+  },
   vite: {
     assetsInclude: ["**/*.pmtiles"],
   },
