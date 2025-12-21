@@ -24,7 +24,12 @@ export default defineNuxtConfig({
   routeRules: {
     "/ogp.png": {
       headers: {
-        "cache-control": "public, max-age=31536000, immutable",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    },
+    "/legacy-items.json": {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
       },
     },
   },
