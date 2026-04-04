@@ -62,6 +62,10 @@ useHead({
       "data-cf-beacon": '{"token": "c7bd1dd5933044bea1c7ba6dd5f676dd"}',
     },
   ],
+  link: [
+    { rel: "manifest", href: "/manifest.webmanifest" },
+    { rel: "apple-touch-icon", href: "/pwa-icon-192.png" },
+  ],
 });
 </script>
 
