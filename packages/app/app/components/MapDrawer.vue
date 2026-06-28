@@ -39,11 +39,24 @@
             >
           </div>
         </header>
-        <MapDrawerOpeningHours
-          v-if="openingSpec"
-          :spec="openingSpec"
-        />
-        <UButton
+        <div class="max-h-[50dvh] overflow-y-auto w-full">
+          <MapDrawerOpeningHours
+            v-if="openingSpec"
+            :spec="openingSpec"
+          />
+          <MapDrawerClassroomDetails
+            v-if="selectedObject?.type === 'Room' && selectedObject.properties?.type === 'Classroom'"
+            :properties="(selectedObject.properties as {
+              maximumAttendeeCapacity: number;
+              maximumExamAttendeeCapacity: number;
+              seatType: 'fixed' | 'movable';
+            })"
+          />
+        </div>
+      </section>
+    </template>
+    <template #footer>
+      <UButton
           block
           class="cursor-pointer"
           icon="material-symbols:navigation"
@@ -51,7 +64,6 @@
         >
           経路を調べる
         </UButton>
-      </section>
     </template>
   </UDrawer>
 </template>

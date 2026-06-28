@@ -42,19 +42,19 @@ const formattedOpeningHours = computed(() => {
 </script>
 
 <template>
-  <div class="">
-    <h3 class="text-lg font-semibold mb-2">営業時間</h3>
-    <UTable
-      :data="formattedOpeningHours"
-      :columns="[
-        { accessorKey: 'dayOfWeek', header: '曜日' },
-        { accessorKey: 'range', header: '時間' },
-      ]"
-      :ui="{
-        th: 'px-4 py-2 text-center',
-        td: 'px-4 py-2 text-center',
-      }"
-    />
+  <div class="flex flex-col items-center gap-1">
+    <h3 class="text-lg text-center font-semibold mb-2 self-start">営業時間</h3>
+    <table class="table-auto w-full border-t border-gray-200 dark:border-gray-700 text-sm">
+      <tbody>
+        <tr
+          v-for="(item, index) in formattedOpeningHours"
+          :key="index"
+          class="border-b border-gray-200 dark:border-gray-700">
+          <th class="px-4 py-2 font-semibold">{{ item.dayOfWeek }}</th>
+          <td class="px-4 py-2">{{ item.range }}</td>
+        </tr>
+      </tbody>
+    </table>
     <p class="text-xs text-muted-foreground mb-2">
       ※営業時間は行事等により変更される場合があります。
     </p>
