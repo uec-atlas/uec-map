@@ -111,13 +111,21 @@ export const useSpatialEntries = () => {
 
   const buildingCentroids = computed(
     () =>
-      typeMap.value.Building.map((building) => {
-        try {
-          return centerOfMass(building, { properties: building.properties });
-        } catch {
-          return null;
-        }
-      }).filter((v): v is NonNullable<typeof v> => !!v) ?? [],
+      [
+        typeMap.value.Structure.filter(
+          (f) => f.properties.type === "Structure",
+        ),
+        typeMap.value.Building,
+      ]
+        .flat()
+        .map((building) => {
+          try {
+            return centerOfMass(building, { properties: building.properties });
+          } catch {
+            return null;
+          }
+        })
+        .filter((v): v is NonNullable<typeof v> => !!v) ?? [],
   );
 
   const floorCentroids = computed(

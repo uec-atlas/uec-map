@@ -23,7 +23,7 @@ import { defineLayerFactory } from "../utils/layer";
 const buildingFilter = [
   "in",
   ["get", "type"],
-  ["literal", ["Building"]],
+  ["literal", ["Building", "Structure"]],
 ] as const satisfies ExpressionSpecification;
 
 export const createBuildingLayers = defineLayerFactory((mode: ColorMode) => ({
@@ -41,7 +41,14 @@ export const createBuildingLayers = defineLayerFactory((mode: ColorMode) => ({
     "fill-opacity": [
       "step",
       ["zoom"],
-      ["match", ["get", "category"], "utility", 0.5, 1],
+      [
+        "case",
+        ["==", ["get", "category"], "utility"],
+        0.5,
+        ["==", ["get", "type"], "Structure"],
+        0.5,
+        1,
+      ],
       ZOOM_LEVELS.BUILDING_DETAILS,
       0.2,
     ],
