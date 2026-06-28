@@ -143,6 +143,10 @@ export const useSearchOptions = () => {
               building: {
                 id: building?.properties.id as string,
                 properties: building?.properties,
+                coordinate: centroid(
+                  polygonToLine(building?.geometry as Polygon),
+                ).geometry.coordinates as [number, number],
+                geometry: building?.geometry as GeoJSON.Geometry,
               },
               coordinate: centroid(polygonToLine(room.geometry as Polygon))
                 .geometry.coordinates,

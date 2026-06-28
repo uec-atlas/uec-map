@@ -38,7 +38,11 @@ const buildingEntrances = new Map<string, Position[]>();
 
 const MAX_WEIGHT = 8;
 
-export function initPathFinding(paths: Feature[], entrances?: Feature[]): void {
+export function initPathFinding(
+  paths: Feature[],
+  buildings?: Feature[],
+  entrances?: Feature[],
+): void {
   graph = createGraph<NodeData, LinkData>();
   spatialIndex = new RBush<NetworkIndexItem>();
 
@@ -106,16 +110,20 @@ export function initPathFinding(paths: Feature[], entrances?: Feature[]): void {
     },
   });
 
-  if (entrances) {
-    entrances.forEach((f) => {
-      const bid: string = f.properties?.building_id;
+  if (buildings && entrances) {
+    for (const entrance of entrances) {
+      const bid = buildings.find((b) =>
+        entrance.properties?.ancestors.includes(b.id),
+      )?.properties?.id;
       if (bid) {
         if (!buildingEntrances.has(bid)) {
           buildingEntrances.set(bid, []);
         }
-        buildingEntrances.get(bid)?.push((f.geometry as Point).coordinates);
+        buildingEntrances
+          .get(bid)
+          ?.push((entrance.geometry as Point).coordinates);
       }
-    });
+    }
   }
 }
 

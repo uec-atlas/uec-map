@@ -1,7 +1,7 @@
 import { ref, computed } from "vue";
 import paths from "@/assets/paths.json";
 import { UEC_ATLAS_SPATIAL_URL } from "@uec-atlas/uec-map-sdk";
-import { center } from "@turf/turf";
+import { centerOfMass } from "@turf/turf";
 import type { Feature, FeatureCollection } from "geojson";
 
 export const SPATIAL_CLASSES = {
@@ -113,7 +113,7 @@ export const useSpatialEntries = () => {
     () =>
       typeMap.value.Building.map((building) => {
         try {
-          return center(building, { properties: building.properties });
+          return centerOfMass(building, { properties: building.properties });
         } catch {
           return null;
         }
@@ -129,7 +129,7 @@ export const useSpatialEntries = () => {
       ]
         .map((storey) => {
           try {
-            return center(storey, { properties: storey.properties });
+            return centerOfMass(storey, { properties: storey.properties });
           } catch {
             return null;
           }

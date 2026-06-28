@@ -105,7 +105,14 @@ import { centroid } from "@turf/turf";
 
 const { paths, idMap, typeMap, getFloorForFeature } = useSpatialEntries();
 
-initPathFinding(paths.features, typeMap.value.BuildingEntrance);
+watch(
+  () => typeMap.value.BuildingEntrance,
+  (newVal) => {
+    if (newVal) {
+      initPathFinding(paths.features, typeMap.value.Building, typeMap.value.BuildingEntrance);
+    }
+  }
+);
 
 const mapInstance = useMap();
 const mapState = useMapState();
