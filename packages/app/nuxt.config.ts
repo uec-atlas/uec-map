@@ -36,4 +36,16 @@ export default defineNuxtConfig({
       },
     },
   },
+  vite: {
+    optimizeDeps: {
+      include: [
+        "@indoorequal/vue-maplibre-gl",
+        "@turf/turf",
+        "maplibre-gl", // CJS
+        "ngraph.graph",
+        "ngraph.path",
+        "rbush",
+      ],
+    },
+  },
 });

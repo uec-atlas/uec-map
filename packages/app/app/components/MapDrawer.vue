@@ -20,50 +20,54 @@
             <span class="text-sm text-muted-foreground" v-if="selectedObject">
               {{ areaLabel }}
               {{ building && getNameOfSpatialEntity(building) }}
-              {{ selectedObject.type === "Room"
-                ? getFloorForFeature(selectedObject)?.labelWithSuffix
-                : "" }}
+              {{
+                selectedObject.type === "Room"
+                  ? getFloorForFeature(selectedObject)?.labelWithSuffix
+                  : ""
+              }}
             </span>
             <h2 class="text-xl font-semibold">
-              {{  getNameOfSpatialEntity(selectedObject!, "名称未設定の地点") }}
+              {{ getNameOfSpatialEntity(selectedObject!, "名称未設定の地点") }}
             </h2>
             <span
               class="text-sm text-muted-foreground"
               v-if="getAltNameOfSpatialEntity(selectedObject!)"
               >{{ getAltNameOfSpatialEntity(selectedObject!) }}</span
             >
-            <span
-              class="text-sm text-muted-foreground"
-              v-if="parentFacility"
-              >{{ getNameOfSpatialEntity(parentFacility) }}</span
+            <span class="text-sm text-muted-foreground" v-if="parentFacility"
+              >{{
+              getNameOfSpatialEntity(parentFacility)
+            }}</span
             >
           </div>
         </header>
         <div class="max-h-[50dvh] overflow-y-auto w-full">
-          <MapDrawerOpeningHours
-            v-if="openingSpec"
-            :spec="openingSpec"
-          />
+          <MapDrawerOpeningHours v-if="openingSpec" :spec="openingSpec"/>
           <MapDrawerClassroomDetails
-            v-if="selectedObject?.type === 'Room' && selectedObject.properties?.type === 'Classroom'"
-            :properties="(selectedObject.properties as {
-              maximumAttendeeCapacity: number;
-              maximumExamAttendeeCapacity: number;
-              seatType: 'fixed' | 'movable';
-            })"
+            v-if="
+              selectedObject?.type === 'Room' &&
+              selectedObject.properties?.type === 'Classroom'
+            "
+            :properties="
+              selectedObject.properties as {
+                maximumAttendeeCapacity: number;
+                maximumExamAttendeeCapacity: number;
+                seatType: 'fixed' | 'movable';
+              }
+            "
           />
         </div>
       </section>
     </template>
     <template #footer>
       <UButton
-          block
-          class="cursor-pointer"
-          icon="material-symbols:navigation"
-          @click="executeRouteSearch"
-        >
-          経路を調べる
-        </UButton>
+        block
+        class="cursor-pointer"
+        icon="material-symbols:navigation"
+        @click="executeRouteSearch"
+      >
+        経路を調べる
+      </UButton>
     </template>
   </UDrawer>
 </template>
@@ -80,7 +84,8 @@ const {
   pathFindTo: _externalFrom,
   padding,
 } = useMapState();
-const { idMap, typeMap, getAreaKeyForFeature, getFloorForFeature } = useSpatialEntries();
+const { idMap, typeMap, getAreaKeyForFeature, getFloorForFeature } =
+  useSpatialEntries();
 const drawerContainer = useTemplateRef<HTMLElement>("drawerContainer");
 const isDesktop = useDesktopQuery();
 const selectedObject = ref(_selectedObject.value);
@@ -98,9 +103,9 @@ const parentFacility = computed(() => {
 
   const parents = [
     selectedObject.value.properties.containedInPlace,
-    ...selectedObject.value.properties.isPartOf || [],
+    ...(selectedObject.value.properties.isPartOf || []),
   ].filter((id): id is string => !!id);
-  for(const parentId of parents) {
+  for (const parentId of parents) {
     const parentFeature = idMap.value.get(parentId);
     if (parentFeature && parentFeature.properties?.type === "Facility") {
       return parentFeature;
@@ -111,7 +116,11 @@ const parentFacility = computed(() => {
 
 const openingSpec = computed(() => {
   if (!selectedObject.value) return null;
-  return selectedObject.value.properties.openingHoursSpecification || parentFacility.value?.properties?.openingHoursSpecification || null;
+  return (
+    selectedObject.value.properties.openingHoursSpecification ||
+    parentFacility.value?.properties?.openingHoursSpecification ||
+    null
+  );
 });
 
 watch(
@@ -120,7 +129,7 @@ watch(
     if (newVal === null) return;
     selectedObject.value = newVal;
     unescapeProperties(selectedObject.value);
-    if(selectedObject.value.type === "Room") {
+    if (selectedObject.value.type === "Room") {
       unescapeProperties(selectedObject.value.building);
     }
   },
@@ -149,13 +158,15 @@ const building = computed(() => {
   return selectedObject.value.building;
 });
 
-const area = computed(() =>
-  getAreaKeyForFeature(selectedObject.value)
-);
+const area = computed(() => getAreaKeyForFeature(selectedObject.value));
 
 const areaLabel = computed(() => {
-  for(const areaFeature of [...typeMap.value.Area, ...typeMap.value.Site]) {
-    if (selectedObject.value?.properties.ancestors.includes(areaFeature.properties.id)) {
+  for (const areaFeature of [...typeMap.value.Area, ...typeMap.value.Site]) {
+    if (
+      selectedObject.value?.properties.ancestors.includes(
+        areaFeature.properties.id,
+      )
+    ) {
       return getNameOfSpatialEntity(areaFeature);
     }
   }
@@ -165,8 +176,12 @@ const areaLabel = computed(() => {
 const mode = useColorMode();
 const areaColor = computed(() => {
   return mode.value === "dark"
-    ? (area.value ? DARK_BUILDING_AREA_COLOR[AREA_ID_MAP[area.value]] : "#aaaaaa")
-    : (area.value ? BUILDING_AREA_COLOR[AREA_ID_MAP[area.value]] : "#222222");
+    ? area.value
+      ? DARK_BUILDING_AREA_COLOR[AREA_ID_MAP[area.value]]
+      : "#aaaaaa"
+    : area.value
+      ? BUILDING_AREA_COLOR[AREA_ID_MAP[area.value]]
+      : "#222222";
 });
 
 watch(

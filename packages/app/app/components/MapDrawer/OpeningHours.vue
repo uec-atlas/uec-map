@@ -19,7 +19,7 @@ const dayOfWeekMap: Record<string, string> = {
 };
 const formattedOpeningHours = computed(() => {
   const grouped = new Map<string, string[]>();
-  for(const day of Object.values(dayOfWeekMap)) {
+  for (const day of Object.values(dayOfWeekMap)) {
     grouped.set(day, []);
   }
   for (const spec of props.spec) {
@@ -44,12 +44,15 @@ const formattedOpeningHours = computed(() => {
 <template>
   <div class="flex flex-col items-center gap-1">
     <h3 class="text-lg text-center font-semibold mb-2 self-start">営業時間</h3>
-    <table class="table-auto w-full border-t border-gray-200 dark:border-gray-700 text-sm">
+    <table
+      class="table-auto w-full border-t border-gray-200 dark:border-gray-700 text-sm"
+    >
       <tbody>
         <tr
           v-for="(item, index) in formattedOpeningHours"
           :key="index"
-          class="border-b border-gray-200 dark:border-gray-700">
+          class="border-b border-gray-200 dark:border-gray-700"
+        >
           <th class="px-4 py-2 font-semibold">{{ item.dayOfWeek }}</th>
           <td class="px-4 py-2">{{ item.range }}</td>
         </tr>

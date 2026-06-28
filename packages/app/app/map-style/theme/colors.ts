@@ -9,7 +9,8 @@ export const BUILDING_AREA_COLOR: Record<string, string> = {
 export const BUILDING_CATEGORY_ICON_COLOR: Record<string, string> = {
   academic: "#29b90c",
   office: "#1895d4",
-  community: "#ffbb00",
+  sports: "#ffbb00",
+  welfare: "#ffbb00",
   residential: "#9126c7",
 };
 
@@ -161,7 +162,8 @@ export const DARK_BUILDING_AREA_COLOR: Record<string, string> = {
 export const DARK_BUILDING_CATEGORY_ICON_COLOR: Record<string, string> = {
   academic: "#1b7a08",
   office: "#0f5f86",
-  community: "#a67f00",
+  sports: "#a67f00",
+  welfare: "#a67f00",
   residential: "#6b2ea8",
 };
 

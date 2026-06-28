@@ -8,7 +8,7 @@
         v-model="value"
         v-model:search-term="searchTerm"
         icon="material-symbols:search"
-        :groups="searchOptions"
+        :groups="searchTerm.length > 0 ? searchOptions : ([] as CommandPaletteGroup[])"
         placeholder="検索"
         :close="searchTerm.length > 0"
         :fuse="{
@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { CommandPaletteItem } from "@nuxt/ui";
+import type { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
 
 const { selectedObject } = useMapState();
 const value = ref<CommandPaletteItem | null>(null);

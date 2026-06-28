@@ -9,7 +9,10 @@
       interactive
     >
       <MglMarker
-        v-if="mapState.userLocation.value && isAroundUEC(mapState.userLocation.value)"
+        v-if="
+          mapState.userLocation.value &&
+          isAroundUEC(mapState.userLocation.value)
+        "
         :coordinates="mapState.userLocation.value"
       >
         <template #marker>
@@ -55,13 +58,18 @@
         />
       </UFieldGroup>
       <UButton
-        v-if="mapState.userLocation.value && isAroundUEC(mapState.userLocation.value)"
+        v-if="
+          mapState.userLocation.value &&
+          isAroundUEC(mapState.userLocation.value)
+        "
         class="cursor-pointer"
         color="neutral"
         size="lg"
         icon="material-symbols:location-searching"
         variant="outline"
-        @click="mapState.jumpTo({ center: mapState.userLocation.value, zoom: 18 })"
+        @click="
+          mapState.jumpTo({ center: mapState.userLocation.value, zoom: 18 })
+        "
         aria-label="Locate me"
       />
       <UFieldGroup orientation="vertical" class="pointer-events-auto">
@@ -97,10 +105,7 @@ import { centroid } from "@turf/turf";
 
 const { paths, idMap, typeMap, getFloorForFeature } = useSpatialEntries();
 
-initPathFinding(
-  paths.features,
-  typeMap.value.BuildingEntrance,
-);
+initPathFinding(paths.features, typeMap.value.BuildingEntrance);
 
 const mapInstance = useMap();
 const mapState = useMapState();
@@ -157,7 +162,9 @@ watch(
         layers: interactiveLayers,
       });
       if (features.length > 0) {
-        const feature = idMap.value.get(features[0]?.properties.id?.toString() || "");
+        const feature = idMap.value.get(
+          features[0]?.properties.id?.toString() || "",
+        );
         if (!feature) return;
 
         const layerType = (
@@ -185,7 +192,7 @@ watch(
                 ]),
         };
         if (selectedObject.type === "Room") {
-          if(selectedObject.properties?.type === "Passage") return;
+          if (selectedObject.properties?.type === "Passage") return;
           const building = typeMap.value.Building.find((bld) =>
             layerType === "Room"
               ? feature.properties?.ancestors?.includes(bld.id)

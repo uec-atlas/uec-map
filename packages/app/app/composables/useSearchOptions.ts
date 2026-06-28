@@ -31,7 +31,7 @@ export const useSearchOptions = () => {
             suffix: getAltNameOfSpatialEntity(building),
             icon: "material-symbols:domain",
             value: {
-              type: "building",
+              type: "Building",
               id: building.properties.id as string,
               properties: building.properties,
               coordinate: centroid(polygonToLine(building.geometry as Polygon))
@@ -93,7 +93,7 @@ export const useSearchOptions = () => {
               : undefined,
           icon: "material-symbols:gate",
           value: {
-            type: "gate",
+            type: "Gate",
             id: gate.properties.id as string,
             properties: gate.properties,
             coordinate: (gate.geometry as GeoJSON.Point).coordinates,
@@ -137,8 +137,8 @@ export const useSearchOptions = () => {
               `${getNameOfSpatialEntity(building)} ${getAltNameOfSpatialEntity(building)} ${getNameOfSpatialEntity(parentFacility)} ${getAltNameOfSpatialEntity(parentFacility)} ${name} ${getAltNameOfSpatialEntity(room)}`.trim(),
             icon: MAP_ICONS["material-symbols:co-present"],
             value: {
-              type: "room",
-              id: `${index}`,
+              type: "Room",
+              id: `${room.properties.id}`,
               properties: room.properties,
               building: {
                 id: building?.properties.id as string,
@@ -170,8 +170,12 @@ export const useSearchOptions = () => {
     searchOptions,
     selectOptions,
     fuseOptions: {
-      keys: ["searchKey"],
-      threshold: 0.2,
+      useTokenSearch: true,
+      keys: [
+        { name: "label", weight: 2 },
+        { name: "suffix", weight: 1 },
+        { name: "searchKey", weight: 1 },
+      ],
     },
   };
 };

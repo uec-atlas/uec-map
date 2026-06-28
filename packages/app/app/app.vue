@@ -65,6 +65,8 @@ useHead({
   link: [
     { rel: "manifest", href: "/manifest.webmanifest" },
     { rel: "apple-touch-icon", href: "/pwa-icon-192.png" },
+    { rel: "icon", type: "image/svg+xml", href: "/pwa-icon.svg" },
+    { rel: "icon", type: "image/png", sizes: "192x192", href: "/pwa-icon-192.png" },
   ],
 });
 </script>
