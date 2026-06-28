@@ -1,5 +1,5 @@
 {
-  "name": "@e-chan1007/uec-map-sdk",
+  "name": "@uec-atlas/uec-map-sdk",
   "version": "0.0.1",
   "type": "module",
   "main": "./dist/main.js",

@@ -1,36 +1,47 @@
-import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
+import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
+import type { ExpressionSpecification, LayerSpecification } from "maplibre-gl";
 import {
   getBuildingAreaColor,
   getBuildingTypeIconColor,
   type ColorMode,
 } from "../theme/colors";
-import { ZOOM_LEVELS } from "../theme/zoom";
 import {
-  largeLabel,
-  smallLabel,
+  BUILDING_ICONS,
   largeIcon,
-  smallIcon,
   largeIconScale,
-  scaledSmallIconScale,
+  largeLabel,
   overlap,
+  scaledSmallIconScale,
+  smallIcon,
+  smallLabel,
 } from "../theme/icons";
+import { ZOOM_LEVELS } from "../theme/zoom";
 import { buildMatch } from "../utils/expressions";
-import type { LayerSpecification } from "maplibre-gl";
-import { withLanguageSuffixFactory } from "../utils/lang";
+import { altNameField, nameField } from "../utils/lang";
 import { defineLayerFactory } from "../utils/layer";
+
+const buildingFilter = [
+  "in",
+  ["get", "type"],
+  ["literal", ["Building"]],
+] as const satisfies ExpressionSpecification;
 
 export const createBuildingLayers = defineLayerFactory((mode: ColorMode) => ({
   id: "buildings",
   type: "fill",
   source: UEC_MAP_SOURCE_ID,
-  "source-layer": "buildings",
+  filter: buildingFilter,
   minzoom: 0,
   paint: {
-    "fill-color": buildMatch("area", getBuildingAreaColor(mode), "#969696"),
+    "fill-color": buildMatch(
+      "containedInPlace",
+      getBuildingAreaColor(mode),
+      "#969696",
+    ),
     "fill-opacity": [
       "step",
       ["zoom"],
-      ["match", ["get", "type"], "utility", 0.5, 1],
+      ["match", ["get", "category"], "utility", 0.5, 1],
       ZOOM_LEVELS.BUILDING_DETAILS,
       0.2,
     ],
@@ -43,16 +54,14 @@ export const createBuildingIconLayers = defineLayerFactory(
     mode: ColorMode,
     isDesktop = true,
   ): LayerSpecification[] => {
-    const withLanguageSuffix = withLanguageSuffixFactory(language);
     const BUILDING_TYPE = getBuildingTypeIconColor(mode);
 
     return [
       {
         id: "buildings-icon-shadow",
         type: "circle",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
-        filter: ["!=", ["get", "type"], "utility"],
+        source: "buildingCentroids",
+        filter: ["!=", ["get", "category"], "utility"],
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         paint: {
@@ -65,14 +74,13 @@ export const createBuildingIconLayers = defineLayerFactory(
       {
         id: "buildings-icon-background",
         type: "circle",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
-        filter: ["!=", ["get", "type"], "utility"],
+        source: "buildingCentroids",
+        filter: ["!=", ["get", "category"], "utility"],
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         paint: {
           "circle-radius": largeIcon(isDesktop),
-          "circle-color": buildMatch("type", BUILDING_TYPE, "#969696"),
+          "circle-color": buildMatch("category", BUILDING_TYPE, "#969696"),
           "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
@@ -80,27 +88,16 @@ export const createBuildingIconLayers = defineLayerFactory(
       {
         id: "buildings-icon-symbol",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
-        filter: ["!=", ["get", "type"], "utility"],
+        source: "buildingCentroids",
+        filter: ["!=", ["get", "category"], "utility"],
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         layout: {
-          "icon-image": [
-            "match",
-            ["get", "type"],
-            "academic",
-            MAP_ICONS["mdi:town-hall"],
-            "office",
-            MAP_ICONS["material-symbols:domain"],
-            "community",
-            MAP_ICONS["material-symbols:groups"],
-            "residential",
-            MAP_ICONS["material-symbols:home"],
-            "fountain",
-            MAP_ICONS["mdi:fountain"],
-            MAP_ICONS["material-symbols:square"],
-          ],
+          "icon-image": buildMatch(
+            "category",
+            BUILDING_ICONS,
+            BUILDING_ICONS.default,
+          ),
           "icon-padding": 0,
           "icon-allow-overlap": true,
           "icon-ignore-placement": true,
@@ -114,13 +111,12 @@ export const createBuildingIconLayers = defineLayerFactory(
       {
         id: "buildings-text-symbol",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
-        filter: ["!=", ["get", "type"], "utility"],
+        source: "buildingCentroids",
+        filter: ["!=", ["get", "category"], "utility"],
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         layout: {
-          "text-field": ["get", withLanguageSuffix("name")],
+          "text-field": nameField(language),
           "text-optional": false,
           "text-size": largeLabel(isDesktop),
           "text-max-width": 16,
@@ -137,14 +133,13 @@ export const createBuildingIconLayers = defineLayerFactory(
       {
         id: "buildings-alt-text",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
-        filter: ["!=", ["get", "type"], "utility"],
+        source: "buildingCentroids",
+        filter: ["!=", ["get", "category"], "utility"],
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         layout: {
           "text-padding": 0,
-          "text-field": ["get", withLanguageSuffix("altname")],
+          "text-field": altNameField(language),
           "text-size": smallLabel(isDesktop),
           "text-anchor": "top",
           "text-allow-overlap": overlap(),
@@ -166,13 +161,11 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
     mode: ColorMode,
     isDesktop = true,
   ): LayerSpecification[] => {
-    const withLanguageSuffix = withLanguageSuffixFactory(language);
     return [
       {
         id: "buildings-detail-icon-shadow",
         type: "circle",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
+        source: "buildingCentroids",
         filter: ["==", ["get", "type"], "utility"],
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
@@ -186,8 +179,7 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
       {
         id: "buildings-detail-icon-background",
         type: "circle",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
+        source: "buildingCentroids",
         filter: ["==", ["get", "type"], "utility"],
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
@@ -201,8 +193,7 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
       {
         id: "buildings-detail-icon",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
+        source: "buildingCentroids",
         filter: ["==", ["get", "type"], "utility"],
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
@@ -221,13 +212,12 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
       {
         id: "buildings-detail-text",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
+        source: "buildingCentroids",
         filter: ["==", ["get", "type"], "utility"],
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         layout: {
-          "text-field": ["get", withLanguageSuffix("name")],
+          "text-field": nameField(language),
           "text-optional": true,
           "text-size": smallLabel(isDesktop),
           "text-max-width": 16,
@@ -246,14 +236,13 @@ export const createBuildingDetailIconLayers = defineLayerFactory(
       {
         id: "buildings-detail-alt-text",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "buildings_label",
+        source: "buildingCentroids",
         filter: ["==", ["get", "type"], "utility"],
         minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
         maxzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         layout: {
           "text-padding": 0,
-          "text-field": ["get", withLanguageSuffix("altname")],
+          "text-field": altNameField(language),
           "text-optional": true,
           "text-size": smallLabel(isDesktop),
           "text-anchor": "top",

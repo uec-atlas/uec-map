@@ -1,11 +1,5 @@
-import { bbox, distance, nearestPointOnLine, point, bearing } from "@turf/turf";
-import type {
-  Feature,
-  FeatureCollection,
-  LineString,
-  Point,
-  Position,
-} from "geojson";
+import { bbox, bearing, distance, nearestPointOnLine, point } from "@turf/turf";
+import type { Feature, LineString, Point, Position } from "geojson";
 import createGraph, { type Graph } from "ngraph.graph";
 import { aStar, type PathFinder } from "ngraph.path";
 import RBush from "rbush";
@@ -44,19 +38,22 @@ const buildingEntrances = new Map<string, Position[]>();
 
 const MAX_WEIGHT = 8;
 
-export function initPathFinding(
-  pathGeoJSON: FeatureCollection<LineString>,
-  entranceGeoJSON?: FeatureCollection<Point>,
-): void {
+export function initPathFinding(paths: Feature[], entrances?: Feature[]): void {
   graph = createGraph<NodeData, LinkData>();
   spatialIndex = new RBush<NetworkIndexItem>();
 
   const bulkItems: NetworkIndexItem[] = [];
-  pathGeoJSON.features.forEach((feature) => {
+  paths.forEach((feature) => {
     if (feature.geometry.type !== "LineString") return;
 
     const [minX, minY, maxX, maxY] = bbox(feature);
-    bulkItems.push({ minX, minY, maxX, maxY, feature });
+    bulkItems.push({
+      minX,
+      minY,
+      maxX,
+      maxY,
+      feature: feature as Feature<LineString>,
+    });
 
     const coords = feature.geometry.coordinates;
     for (let i = 0; i < coords.length - 1; i++) {
@@ -109,14 +106,14 @@ export function initPathFinding(
     },
   });
 
-  if (entranceGeoJSON) {
-    entranceGeoJSON.features.forEach((f) => {
+  if (entrances) {
+    entrances.forEach((f) => {
       const bid: string = f.properties?.building_id;
       if (bid) {
         if (!buildingEntrances.has(bid)) {
           buildingEntrances.set(bid, []);
         }
-        buildingEntrances.get(bid)?.push(f.geometry.coordinates);
+        buildingEntrances.get(bid)?.push((f.geometry as Point).coordinates);
       }
     });
   }

@@ -25,11 +25,11 @@ useHead({
     },
     {
       property: "og:url",
-      content: "https://uec-map.e-chan.me/",
+      content: "https://map.uec-atlas.org/",
     },
     {
       property: "og:image",
-      content: "https://uec-map.e-chan.me/og.png",
+      content: "https://map.uec-atlas.org/og.png",
     },
     {
       property: "og:image:width",
@@ -50,7 +50,7 @@ useHead({
     },
     {
       name: "twitter:image",
-      content: "https://uec-map.e-chan.me/og.png",
+      content: "https://map.uec-atlas.org/og.png",
       tagPriority: -10,
     },
   ],

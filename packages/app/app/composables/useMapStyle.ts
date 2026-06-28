@@ -1,7 +1,8 @@
-import { buildMapStyle, getBundledPMTilesUrl } from "@e-chan1007/uec-map-sdk";
+import { buildMapStyle } from "@uec-atlas/uec-map-sdk";
 import type { Ref } from "vue";
-import { computed } from "vue";
 import { createEntrancesLayers } from "~/map-style/layers/entrances";
+import { createSelectedObjectLayers } from "~/map-style/layers/selectedObject";
+import type { ColorMode } from "~/map-style/theme/colors";
 import {
   createAreaLabelLayers,
   createAreaLayers,
@@ -13,23 +14,28 @@ import {
 } from "../map-style/layers/buildings";
 import { createExtrusionLayers } from "../map-style/layers/extrusion";
 import {
-  createFloorLayers,
   createFloorIconLayers,
+  createFloorLayers,
 } from "../map-style/layers/floors";
 import { createGateLayers } from "../map-style/layers/gates";
 import { createOsmLayers } from "../map-style/layers/osm";
 import { createPathLayers } from "../map-style/layers/paths";
-import type { ColorMode } from "~/map-style/theme/colors";
-import { createSelectedObjectLayers } from "~/map-style/layers/selectedObject";
 
 export const useMapStyle = (
   shouldUseExtrusion: Ref<boolean>,
-  language: Ref<string>,
   isDesktop: Ref<boolean>,
 ) =>
   computed(() => {
+    const { language } = useLanguage();
     const { floor, selectedObject, pathFindResult } = useMapState();
     const mode = useColorMode().value as ColorMode;
+
+    const {
+      data: spatialData,
+      paths,
+      buildingCentroids,
+      floorCentroids,
+    } = useSpatialEntries();
 
     // 文字・アイコンレイヤーを生成する関数
     const createLabelAndIconLayers = () => [
@@ -46,13 +52,31 @@ export const useMapStyle = (
       ),
     ];
 
-    return buildMapStyle(getBundledPMTilesUrl(), {
+    return buildMapStyle(spatialData.value as GeoJSON.FeatureCollection, {
       version: 8,
       sources: {
         osm: {
           type: "vector",
-          url: "pmtiles://https://tile.openstreetmap.jp/static/planet.pmtiles",
+          url: "https://tile.openstreetmap.jp/data/planet.json",
           attribution: "&copy; OpenStreetMap contributors",
+        },
+        paths: {
+          type: "geojson",
+          data: paths,
+        },
+        buildingCentroids: {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: buildingCentroids.value,
+          },
+        },
+        floorCentroids: {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: floorCentroids.value,
+          },
         },
         pathFindResult: {
           type: "geojson",

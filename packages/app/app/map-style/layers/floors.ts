@@ -1,37 +1,59 @@
-import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
-import type { FilterSpecification } from "maplibre-gl";
+import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
+import type {
+  ExpressionSpecification,
+  FilterSpecification,
+  LayerSpecification,
+} from "maplibre-gl";
 import {
-  getTypeColorMap,
-  getFloorIconBgColor,
+  getFillColorSpec,
+  getFloorIconBgSpec,
   type ColorMode,
 } from "../theme/colors";
-import { buildMatch } from "../utils/expressions";
-import { withLanguageSuffixFactory } from "../utils/lang";
-import { defineLayerFactory } from "../utils/layer";
-import { ZOOM_LEVELS } from "../theme/zoom";
 import {
-  FLOOR_ICONS,
+  FLOOR_ICON_SPEC,
   smallIcon,
-  smallLabel,
   smallIconScale,
+  smallLabel,
 } from "../theme/icons";
-import type { LayerSpecification } from "maplibre-gl";
+import { ZOOM_LEVELS } from "../theme/zoom";
+import { altNameField, nameField } from "../utils/lang";
+import { defineLayerFactory } from "../utils/layer";
 
 export const createFloorLayers = defineLayerFactory(
-  (floor: number, shouldUseExtrusion: boolean, mode: ColorMode) => {
-    const TYPE = getTypeColorMap(mode);
+  (floor: FloorLevel, shouldUseExtrusion: boolean, mode: ColorMode) => {
+    const { typeMap } = useSpatialEntries();
+    const currentStoreyIds = typeMap.value.Storey.filter(
+      (storey) => storey.properties.floorLevel === floor.label,
+    ).map((storey) => storey.id);
 
     return [
       {
         id: "floors",
         type: "fill",
         source: UEC_MAP_SOURCE_ID,
-        "source-layer": "floors",
         minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
-        filter: ["==", ["get", "floor"], floor],
+        filter: [
+          "any",
+          ...currentStoreyIds.map(
+            (id) =>
+              [
+                "in",
+                id,
+                ["array", ["get", "ancestors"]],
+              ] as ExpressionSpecification,
+          ),
+          ...currentStoreyIds.map(
+            (id) =>
+              [
+                "in",
+                id,
+                ["array", ["get", "intersectsPlace"]],
+              ] as ExpressionSpecification,
+          ),
+        ],
         layout: { visibility: shouldUseExtrusion ? "none" : "visible" },
         paint: {
-          "fill-color": buildMatch("type", TYPE, "#31A6D4"),
+          "fill-color": getFillColorSpec(mode),
           "fill-outline-color": "#232323",
         },
       },
@@ -41,32 +63,73 @@ export const createFloorLayers = defineLayerFactory(
 
 export const createFloorIconLayers = defineLayerFactory(
   (
-    floor: number,
+    floor: FloorLevel,
     shouldUseExtrusion: boolean,
     language: string,
     mode: ColorMode,
     isDesktop = true,
   ): LayerSpecification[] => {
-    const withLanguageSuffix = withLanguageSuffixFactory(language);
-    const FLOOR_BG = getFloorIconBgColor(mode);
+    const { typeMap } = useSpatialEntries();
+    const currentStoreyIds = typeMap.value.Storey.filter(
+      (storey) => storey.properties.floorLevel === floor.label,
+    ).map((storey) => storey.id);
+
+    const FLOOR_BG = getFloorIconBgSpec(mode);
 
     const floorIconFilter: FilterSpecification = [
       "all",
-      ["==", ["get", "floor"], floor],
-      ["!", ["in", ["get", "type"], ["literal", ["corridor", "misc"]]]],
+      [
+        "any",
+        ...currentStoreyIds.map(
+          (id) =>
+            [
+              "in",
+              id,
+              ["array", ["get", "ancestors"]],
+            ] as ExpressionSpecification,
+        ),
+        ...currentStoreyIds.map(
+          (id) =>
+            [
+              "in",
+              id,
+              ["array", ["get", "intersectsPlace"]],
+            ] as ExpressionSpecification,
+        ),
+      ],
+      [
+        "!",
+        [
+          "all",
+          ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+          ["!", ["has", "usage"]],
+        ],
+      ],
+      [
+        "!",
+        [
+          "all",
+          ["==", ["get", "type"], "Passage"],
+          ["==", ["get", "category"], "corridor"],
+        ],
+      ],
+    ];
+
+    const floorIconLabelFilter: FilterSpecification = [
+      ...floorIconFilter,
+      ["!=", ["get", "type"], "Passage"],
     ];
 
     return [
       {
         id: "floors-icon-shadow",
         type: "circle",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "floors_label",
+        source: "floorCentroids",
         minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         filter: floorIconFilter,
         layout: { visibility: shouldUseExtrusion ? "none" : "visible" },
         paint: {
-          "circle-radius": smallIcon(isDesktop),
+          "circle-radius": smallIcon(isDesktop) + 2,
           "circle-blur": 0.7,
           "circle-color": "#000000AA",
           "circle-translate": [0, 2],
@@ -75,14 +138,13 @@ export const createFloorIconLayers = defineLayerFactory(
       {
         id: "floors-icon-background",
         type: "circle",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "floors_label",
+        source: "floorCentroids",
         minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         filter: floorIconFilter,
         layout: { visibility: shouldUseExtrusion ? "none" : "visible" },
         paint: {
-          "circle-radius": smallIcon(isDesktop),
-          "circle-color": buildMatch("type", FLOOR_BG, "#969696"),
+          "circle-radius": smallIcon(isDesktop) + 2,
+          "circle-color": FLOOR_BG,
           "circle-stroke-color": mode === "dark" ? "#CCCCCC" : "#FFFFFF",
           "circle-stroke-width": 2,
         },
@@ -90,14 +152,13 @@ export const createFloorIconLayers = defineLayerFactory(
       {
         id: "floors-text-symbol",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "floors_label",
+        source: "floorCentroids",
         minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
-        filter: floorIconFilter,
+        filter: floorIconLabelFilter,
         layout: {
           visibility: shouldUseExtrusion ? "none" : "visible",
           "text-padding": 0,
-          "text-field": ["get", withLanguageSuffix("name")],
+          "text-field": nameField(language),
           "text-size": smallLabel(isDesktop),
           "text-max-width": 16,
           "text-offset": [0, 2],
@@ -112,14 +173,13 @@ export const createFloorIconLayers = defineLayerFactory(
       {
         id: "floors-alt-label",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "floors_label",
+        source: "floorCentroids",
         minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
-        filter: floorIconFilter,
+        filter: floorIconLabelFilter,
         layout: {
           visibility: shouldUseExtrusion ? "none" : "visible",
           "text-padding": 0,
-          "text-field": ["get", withLanguageSuffix("altname")],
+          "text-field": altNameField(language),
           "text-size": smallLabel(isDesktop),
           "text-anchor": "top",
           "text-offset": [0, 2.75],
@@ -134,13 +194,12 @@ export const createFloorIconLayers = defineLayerFactory(
       {
         id: "floors-icon-symbol",
         type: "symbol",
-        source: UEC_MAP_SOURCE_ID,
-        "source-layer": "floors_label",
+        source: "floorCentroids",
         minzoom: ZOOM_LEVELS.BUILDING_DETAILS,
         filter: floorIconFilter,
         layout: {
           visibility: shouldUseExtrusion ? "none" : "visible",
-          "icon-image": buildMatch("type", FLOOR_ICONS, FLOOR_ICONS.default),
+          "icon-image": FLOOR_ICON_SPEC,
           "icon-size": smallIconScale(isDesktop),
           "icon-padding": 0,
           "icon-allow-overlap": true,

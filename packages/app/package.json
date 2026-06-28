@@ -1,5 +1,5 @@
 {
-  "name": "@e-chan1007/uec-map-app",
+  "name": "@uec-atlas/uec-map-app",
   "type": "module",
   "private": true,
   "scripts": {
@@ -10,9 +10,10 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@e-chan1007/uec-map-sdk": "workspace:*",
+    "@uec-atlas/uec-map-sdk": "workspace:*",
     "@indoorequal/vue-maplibre-gl": "^8.4.2",
     "@nuxt/ui": "^4.2.1",
+    "@turf/centroid": "^7.3.5",
     "@turf/turf": "^7.3.1",
     "@vueuse/nuxt": "^14.1.0",
     "maplibre-gl": "^5.13.0",
@@ -32,6 +33,7 @@
     "@iconify-json/map": "^1.2.2",
     "@iconify-json/material-symbols": "^1.2.48",
     "@iconify-json/mdi": "^1.2.3",
+    "@iconify-json/temaki": "^1.2.6",
     "@types/geojson": "^7946.0.16",
     "@types/rbush": "^4.0.0",
     "biome": "^0.3.3",

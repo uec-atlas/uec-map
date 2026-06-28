@@ -1,4 +1,4 @@
-import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
+import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
 import { defineLayerFactory } from "../utils/layer";
 import { ZOOM_LEVELS } from "../theme/zoom";
 import type { ColorMode } from "../theme/colors";
@@ -7,7 +7,7 @@ export const createEntrancesLayers = defineLayerFactory((mode: ColorMode) => ({
   id: "entrances",
   type: "symbol",
   source: UEC_MAP_SOURCE_ID,
-  "source-layer": "entrances",
+  filter: ["==", ["get", "type"], "BuildingEntrance"],
   minzoom: ZOOM_LEVELS.ALL_BUILDINGS,
   layout: {
     "icon-image": MAP_ICONS["mdi:triangle"],

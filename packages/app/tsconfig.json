@@ -17,7 +17,7 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@e-chan1007/uec-map-sdk": ["../sdk/src/main.ts"]
+      "@uec-atlas/uec-map-sdk": ["../sdk/src/main.ts"]
     }
   }
 }

@@ -20,6 +20,9 @@ export default defineNuxtConfig({
       },
     ],
   ],
+  imports: {
+    dirs: ["~/composables", "~/constants", "~/models", "~/utils"],
+  },
   css: ["@/assets/style.css"],
   routeRules: {
     "/ogp.png": {
@@ -32,8 +35,5 @@ export default defineNuxtConfig({
         "Access-Control-Allow-Origin": "*",
       },
     },
-  },
-  vite: {
-    assetsInclude: ["**/*.pmtiles"],
   },
 });

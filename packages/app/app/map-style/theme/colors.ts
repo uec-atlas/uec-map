@@ -1,82 +1,219 @@
-export const TYPE_COLOR_MAP: Record<string, string> = {
-  misc: "#969696",
-  corridor: "#EAEAEA",
-  elevator: "#C8C8C8",
-  stairs: "#C8C8C8",
-  lecture_room: "#B1E4B2",
-  wc_universal: "#AC8DCE",
-  wc_unknown: "#C7A3C6",
-  wc_men: "#8DA2DB",
-  wc_women: "#CE8D9B",
-  common_space: "#FFEBA6",
-  office: "#D3F1FF",
-};
+import type { ExpressionSpecification } from "maplibre-gl";
 
 export const BUILDING_AREA_COLOR: Record<string, string> = {
-  east: "#4eb562",
-  west: "#f66950",
-  "100th": "#43acdd",
+  [AREA_ID_MAP.east]: "#4eb562",
+  [AREA_ID_MAP.west]: "#f66950",
+  [AREA_ID_MAP.anniversary]: "#43acdd",
 };
 
-export const BUILDING_TYPE_ICON_COLOR: Record<string, string> = {
+export const BUILDING_CATEGORY_ICON_COLOR: Record<string, string> = {
   academic: "#29b90c",
   office: "#1895d4",
   community: "#ffbb00",
   residential: "#9126c7",
 };
 
-export const FLOOR_ICON_BG_COLOR: Record<string, string> = {
-  lecture_room: "#0ca70e",
-  wc_universal: "#8737dc",
-  wc_unknown: "#9527b1",
-  wc_men: "#234ec7",
-  wc_women: "#c72347",
-  common_space: "#f7c71c",
-  office: "#3abdf9",
-};
+export const FLOOR_ICON_BG_COLOR_SPEC: ExpressionSpecification = [
+  "case",
+  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "#0ca70e",
+  [
+    "all",
+    ["==", ["get", "type"], "Passage"],
+    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
+  ],
+  "#969696",
+  ["==", ["get", "type"], "Restroom"],
+  ["match", ["get", "gender"], "men", "#234ec7", "women", "#c72347", "#9527b1"],
+  ["==", ["get", "type"], "Facility"],
+  [
+    "match",
+    ["get", "category"],
+    "cafeteria",
+    "#f7c71c",
+    "shop",
+    "#f7c71c",
+    "office",
+    "#3abdf9",
+    "#969696",
+  ],
+  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  [
+    "match",
+    ["get", "usage"],
+    "library",
+    "#22a37a",
+    "museum",
+    "#2329ba",
+    "group_study",
+    "#20bdaf",
+    "self_study",
+    "#20bdaf",
+    "extra_curricular",
+    "#f7ad3b",
+    "lounge",
+    "#f7ad3b",
+    "#969696",
+  ],
+  "#969696",
+];
 
-// Dark-mode variants
-export const DARK_TYPE_COLOR_MAP: Record<string, string> = {
-  misc: "#4a4a4a",
-  corridor: "#555555",
-  elevator: "#656565",
-  stairs: "#656565",
-  lecture_room: "#2f5035",
-  wc_universal: "#6b4a75",
-  wc_unknown: "#6b4766",
-  wc_men: "#3a5f88",
-  wc_women: "#8a3f46",
-  common_space: "#7a6a10",
-  office: "#2f5270",
-};
+export const ROOM_COLOR_SPEC: ExpressionSpecification = [
+  "case",
+  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "#B1E4B2",
+  [
+    "all",
+    ["==", ["get", "type"], "Passage"],
+    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
+  ],
+  "#C8C8C8",
+  ["==", ["get", "type"], "Passage"],
+  "#EAEAEA",
+  ["==", ["get", "type"], "Restroom"],
+  ["match", ["get", "gender"], "men", "#8DA2DB", "women", "#CE8D9B", "#AC8DCE"],
+  ["==", ["get", "type"], "Facility"],
+  [
+    "match",
+    ["get", "category"],
+    "shop",
+    "#fad284",
+    "cafeteria",
+    "#fad284",
+    "office",
+    "#84D4F9",
+    "#969696",
+  ],
+  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  [
+    "match",
+    ["get", "usage"],
+    "library",
+    "#8adec3",
+    "museum",
+    "#c5c6ed",
+    "group_study",
+    "#9ee8e1",
+    "self_study",
+    "#9ee8e1",
+    "extra_curricular",
+    "#FFF6BC",
+    "lounge",
+    "#FFF6BC",
+    "#969696",
+  ],
+  "#969696",
+];
+
+export const DARK_ROOM_COLOR_SPEC: ExpressionSpecification = [
+  "case",
+  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "#2f5035",
+  [
+    "all",
+    ["==", ["get", "type"], "Passage"],
+    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
+  ],
+  "#656565",
+  ["==", ["get", "type"], "Passage"],
+  "#777777",
+  ["==", ["get", "type"], "Restroom"],
+  ["match", ["get", "gender"], "men", "#3a5f88", "women", "#8a3f46", "#6b4a75"],
+  ["==", ["get", "type"], "Facility"],
+  [
+    "match",
+    ["get", "category"],
+    "shop",
+    "#694b07",
+    "cafeteria",
+    "#694b07",
+    "office",
+    "#134c72",
+    "#333333",
+  ],
+  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  [
+    "match",
+    ["get", "usage"],
+    "library",
+    "#1d4d3d",
+    "museum",
+    "#17195c",
+    "group_study",
+    "#165751",
+    "self_study",
+    "#165751",
+    "extra_curricular",
+    "#785f1c",
+    "lounge",
+    "#785f1c",
+    "#333333",
+  ],
+  "#333333",
+];
 
 export const DARK_BUILDING_AREA_COLOR: Record<string, string> = {
-  east: "#2b5d3a",
-  west: "#7a3b33",
-  "100th": "#2e6580",
+  [AREA_ID_MAP.east]: "#2b5d3a",
+  [AREA_ID_MAP.west]: "#7a3b33",
+  [AREA_ID_MAP.anniversary]: "#2e6580",
 };
 
-export const DARK_BUILDING_TYPE_ICON_COLOR: Record<string, string> = {
+export const DARK_BUILDING_CATEGORY_ICON_COLOR: Record<string, string> = {
   academic: "#1b7a08",
   office: "#0f5f86",
   community: "#a67f00",
   residential: "#6b2ea8",
 };
 
-export const DARK_FLOOR_ICON_BG_COLOR: Record<string, string> = {
-  lecture_room: "#0b5a08",
-  wc_universal: "#5b2fa0",
-  wc_unknown: "#6a2a86",
-  wc_men: "#12345f",
-  wc_women: "#8a1b2b",
-  common_space: "#8b6b16",
-  office: "#0f6fa0",
-};
+export const DARK_FLOOR_ICON_BG_COLOR_SPEC: ExpressionSpecification = [
+  "case",
+  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "#0b5a08",
+  [
+    "all",
+    ["==", ["get", "type"], "Passage"],
+    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
+  ],
+  "#4a4a4a",
+  ["==", ["get", "type"], "Restroom"],
+  ["match", ["get", "gender"], "men", "#12345f", "women", "#8a1b2b", "#6a2a86"],
+  ["==", ["get", "type"], "Facility"],
+  [
+    "match",
+    ["get", "category"],
+    "cafeteria",
+    "#8b6b16",
+    "shop",
+    "#8b6b16",
+    "office",
+    "#0f6fa0",
+    "#4a4a4a",
+  ],
+  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  [
+    "match",
+    ["get", "usage"],
+    "library",
+    "#1d4d3d",
+    "museum",
+    "#17195c",
+    "group_study",
+    "#165751",
+    "self_study",
+    "#165751",
+    "extra_curricular",
+    "#785f1c",
+    "lounge",
+    "#785f1c",
+    "#4a4a4a",
+  ],
+  "#4a4a4a",
+];
 
 export type ColorMode = "light" | "dark";
 
-export function getTypeColorMap(mode: ColorMode) {
-  return mode === "dark" ? DARK_TYPE_COLOR_MAP : TYPE_COLOR_MAP;
+export function getFillColorSpec(mode: ColorMode) {
+  return mode === "dark" ? DARK_ROOM_COLOR_SPEC : ROOM_COLOR_SPEC;
 }
 
 export function getBuildingAreaColor(mode: ColorMode) {
@@ -85,10 +222,12 @@ export function getBuildingAreaColor(mode: ColorMode) {
 
 export function getBuildingTypeIconColor(mode: ColorMode) {
   return mode === "dark"
-    ? DARK_BUILDING_TYPE_ICON_COLOR
-    : BUILDING_TYPE_ICON_COLOR;
+    ? DARK_BUILDING_CATEGORY_ICON_COLOR
+    : BUILDING_CATEGORY_ICON_COLOR;
 }
 
-export function getFloorIconBgColor(mode: ColorMode) {
-  return mode === "dark" ? DARK_FLOOR_ICON_BG_COLOR : FLOOR_ICON_BG_COLOR;
+export function getFloorIconBgSpec(mode: ColorMode): ExpressionSpecification {
+  return mode === "dark"
+    ? DARK_FLOOR_ICON_BG_COLOR_SPEC
+    : FLOOR_ICON_BG_COLOR_SPEC;
 }

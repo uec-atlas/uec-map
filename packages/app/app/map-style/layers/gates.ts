@@ -1,10 +1,16 @@
-import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
-import { withLanguageSuffixFactory } from "../utils/lang";
-import { defineLayerFactory } from "../utils/layer";
-import { ZOOM_LEVELS } from "../theme/zoom";
+import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
+import type { ExpressionSpecification, LayerSpecification } from "maplibre-gl";
 import type { ColorMode } from "../theme/colors";
-import { overlap, smallLabel, smallIcon, smallIconScale } from "../theme/icons";
-import type { LayerSpecification } from "maplibre-gl";
+import { overlap, smallIcon, smallIconScale, smallLabel } from "../theme/icons";
+import { ZOOM_LEVELS } from "../theme/zoom";
+import { nameField } from "../utils/lang";
+import { defineLayerFactory } from "../utils/layer";
+
+const gateFilter = [
+  "==",
+  ["get", "type"],
+  "Gate",
+] as const satisfies ExpressionSpecification;
 
 export const createGateLayers = defineLayerFactory(
   (
@@ -12,14 +18,12 @@ export const createGateLayers = defineLayerFactory(
     mode: ColorMode,
     isDesktop = true,
   ): LayerSpecification[] => {
-    const withLanguageSuffix = withLanguageSuffixFactory(language);
-
     return [
       {
         id: "gates-icon-shadow",
         type: "circle",
         source: UEC_MAP_SOURCE_ID,
-        "source-layer": "gates",
+        filter: gateFilter,
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         paint: {
           "circle-radius": smallIcon(isDesktop),
@@ -32,7 +36,7 @@ export const createGateLayers = defineLayerFactory(
         id: "gates-icon-background",
         type: "circle",
         source: UEC_MAP_SOURCE_ID,
-        "source-layer": "gates",
+        filter: gateFilter,
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         paint: {
           "circle-radius": smallIcon(isDesktop),
@@ -45,7 +49,7 @@ export const createGateLayers = defineLayerFactory(
         id: "gates-icon-symbol",
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
-        "source-layer": "gates",
+        filter: gateFilter,
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         layout: {
           "icon-image": MAP_ICONS["material-symbols:gate"],
@@ -63,10 +67,10 @@ export const createGateLayers = defineLayerFactory(
         id: "gates-text-symbol",
         type: "symbol",
         source: UEC_MAP_SOURCE_ID,
-        "source-layer": "gates",
+        filter: gateFilter,
         minzoom: ZOOM_LEVELS.MAIN_BUILDING,
         layout: {
-          "text-field": ["get", withLanguageSuffix("name")],
+          "text-field": nameField(language),
           "text-optional": true,
           "text-size": smallLabel(isDesktop),
           "text-max-width": 16,

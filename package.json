@@ -1,12 +1,11 @@
 {
-  "name": "@e-chan1007/uec-map",
+  "name": "@uec-atlas/uec-map",
   "private": true,
   "scripts": {
-    "build:map": "./map-src/convert.sh",
-    "app": "pnpm -F @e-chan1007/uec-map-app",
-    "sdk": "pnpm -F @e-chan1007/uec-map-sdk",
+    "app": "pnpm -F @uec-atlas/uec-map-app",
+    "sdk": "pnpm -F @uec-atlas/uec-map-sdk",
     "dev": "pnpm -r --parallel run dev",
-    "build": "pnpm build:map && pnpm -r run build"
+    "build": "pnpm -r run build"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10"

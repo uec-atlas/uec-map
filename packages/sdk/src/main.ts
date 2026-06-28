@@ -3,53 +3,37 @@ import maplibregl, {
   type StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import * as pmtiles from "pmtiles";
-import bundledPMTiles from "./assets/map.pmtiles?inline";
 
 export const UEC_MAP_SOURCE_ID = "uec-map";
+export const UEC_ATLAS_SPATIAL_URL =
+  "https://uec-atlas.org/resources/spatial/all";
 
-const dataURItoBlob = (dataURI: string) => {
-  const [header, data] = dataURI.split(",");
-  const byteString = atob(data);
-  const mimeString = header.split(":")[1].split(";")[0];
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
+let cachedUECAtlasSpatial: GeoJSON.FeatureCollection | null = null;
+
+export async function getUECAtlasSpatial(): Promise<GeoJSON.FeatureCollection> {
+  if (cachedUECAtlasSpatial) {
+    return cachedUECAtlasSpatial;
   }
-  return new Blob([ab], { type: mimeString });
-};
-
-let cachedBundledPMTilesUrl: string | undefined;
-export function getBundledPMTilesUrl() {
-  if (cachedBundledPMTilesUrl) return cachedBundledPMTilesUrl;
-  cachedBundledPMTilesUrl = bundledPMTiles.startsWith("data:")
-    ? URL.createObjectURL(dataURItoBlob(bundledPMTiles))
-    : bundledPMTiles;
-  return cachedBundledPMTilesUrl;
-}
-
-export function setupTiles(lib: typeof maplibregl = maplibregl) {
-  const protocol = new pmtiles.Protocol();
-  lib.addProtocol("pmtiles", protocol.tile);
-  return protocol;
+  const data = await fetch(UEC_ATLAS_SPATIAL_URL).then((res) => res.json());
+  cachedUECAtlasSpatial = data;
+  return data;
 }
 
 export function buildMapStyle(
-  pmtilesUrl: string,
+  spatialData?: GeoJSON.FeatureCollection,
   userStyle?: StyleSpecification,
 ): StyleSpecification {
-  const pmtilesSource: SourceSpecification = {
-    type: "vector",
-    url: `pmtiles://${pmtilesUrl}`,
-    attribution: "&copy; e-chan1007",
+  const source: SourceSpecification = {
+    type: "geojson",
+    data: spatialData || UEC_ATLAS_SPATIAL_URL,
+    attribution: "&copy; <a href='https://uec-atlas.org'>UEC Atlas</a>",
   };
 
   if (!userStyle) {
     return {
       version: 8,
       sources: {
-        [UEC_MAP_SOURCE_ID]: pmtilesSource,
+        [UEC_MAP_SOURCE_ID]: source,
       },
       layers: [
         {
@@ -73,27 +57,25 @@ export function buildMapStyle(
     ...userStyle,
     sources: {
       ...userStyle.sources,
-      [UEC_MAP_SOURCE_ID]: pmtilesSource,
+      [UEC_MAP_SOURCE_ID]: source,
     },
   };
 }
 
 export interface EmbedMapOptions extends Omit<maplibregl.MapOptions, "style"> {
-  pmtilesUrl: string;
+  data?: GeoJSON.FeatureCollection;
   style?: StyleSpecification;
 }
 
 export class EmbedMap {
+  public data?: GeoJSON.FeatureCollection;
   public map: maplibregl.Map;
-  private pmtilesUrl: string;
 
   constructor(options: EmbedMapOptions) {
-    setupTiles(maplibregl);
+    const { data, style: userStyle, ...mapOptions } = options;
+    const style = buildMapStyle(data, userStyle);
 
-    const { pmtilesUrl, style: userStyle, ...mapOptions } = options;
-    this.pmtilesUrl = pmtilesUrl;
-    const style = buildMapStyle(pmtilesUrl, userStyle);
-
+    this.data = data;
     this.map = new maplibregl.Map({
       ...mapOptions,
       style: style,
@@ -102,11 +84,8 @@ export class EmbedMap {
     });
   }
 
-  public setStyle(userStyle?: StyleSpecification, pmtilesUrl?: string) {
-    if (pmtilesUrl) {
-      this.pmtilesUrl = pmtilesUrl;
-    }
-    const style = buildMapStyle(this.pmtilesUrl, userStyle);
+  public setStyle(userStyle?: StyleSpecification) {
+    const style = buildMapStyle(this.data, userStyle);
     this.map.setStyle(style);
   }
 }

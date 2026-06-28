@@ -32,7 +32,7 @@
           icon="material-symbols:arrow-upward"
           variant="outline"
           size="lg"
-          :disabled="mapState.floor.value >= 10"
+          :disabled="mapState.floor.value.level >= 10"
           @click="upFloor"
           aria-label="Zoom in"
         />
@@ -41,7 +41,7 @@
           color="neutral"
           variant="outline"
           size="lg"
-          :label="formatFloorNumber(mapState.floor.value)"
+          :label="mapState.floor.value.labelWithSuffix"
         />
         <UButton
           color="neutral"
@@ -49,7 +49,7 @@
           icon="material-symbols:arrow-downward"
           variant="outline"
           size="lg"
-          :disabled="mapState.floor.value <= -1"
+          :disabled="mapState.floor.value.level <= -1"
           @click="downFloor"
           aria-label="Zoom out"
         />
@@ -89,43 +89,37 @@
 </template>
 
 <script setup lang="ts">
-import { setupTiles } from "@e-chan1007/uec-map-sdk";
 import { useMap } from "@indoorequal/vue-maplibre-gl";
-import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import BuildingsGeoJSON from "@/assets/buildings.json";
-import EntrancesGeoJSON from "@/assets/entrances.json";
-import PathsGeoJSON from "@/assets/paths.json";
 import { ZOOM_LEVELS } from "~/map-style/theme/zoom";
-import { center, centroid } from "@turf/turf";
+import { centroid } from "@turf/turf";
+
+const { paths, idMap, typeMap, getFloorForFeature } = useSpatialEntries();
 
 initPathFinding(
-  PathsGeoJSON as GeoJSON.FeatureCollection<GeoJSON.LineString>,
-  EntrancesGeoJSON as GeoJSON.FeatureCollection<GeoJSON.Point>,
+  paths.features,
+  typeMap.value.BuildingEntrance,
 );
-
-setupTiles(maplibregl);
 
 const mapInstance = useMap();
 const mapState = useMapState();
 const shouldUseExtrusion = computed(() => mapState.pitch.value > 30);
-const language = ref("ja");
 const isDesktop = useDesktopQuery();
 
 const downFloor = () => {
-  if (mapState.floor.value === 1) {
-    mapState.floor.value = -1;
-  } else if (mapState.floor.value > -1) {
-    mapState.floor.value -= 1;
+  if (mapState.floor.value.level === 1) {
+    mapState.floor.value.level = -1;
+  } else if (mapState.floor.value.level > -1) {
+    mapState.floor.value.level -= 1;
   }
 };
 
 const upFloor = () => {
-  if (mapState.floor.value === -1) {
-    mapState.floor.value = 1;
-  } else if (mapState.floor.value < 10) {
-    mapState.floor.value += 1;
+  if (mapState.floor.value.level === -1) {
+    mapState.floor.value.level = 1;
+  } else if (mapState.floor.value.level < 10) {
+    mapState.floor.value.level += 1;
   }
 };
 
@@ -163,22 +157,23 @@ watch(
         layers: interactiveLayers,
       });
       if (features.length > 0) {
+        const feature = idMap.value.get(features[0]?.properties.id?.toString() || "");
+        if (!feature) return;
+
         const layerType = (
           {
-            buildings: "building",
-            floors: "room",
-            "gates-icon-symbol": "gate",
-            "gates-text-symbol": "gate",
+            buildings: "Building",
+            floors: "Room",
+            "gates-icon-symbol": "Gate",
+            "gates-text-symbol": "Gate",
           } as const
         )[features[0]?.layer.id as string];
-        // biome-ignore lint/style/noNonNullAssertion: Length checked above
-        const feature = features[0]!;
         if (!layerType) return;
-        if (layerType === "room" && feature.properties.type === "corridor")
+        if (layerType === "Room" && feature.properties?.type === "corridor")
           return;
         const selectedObject: Partial<SelectedObject> = {
           type: layerType,
-          id: feature.properties.id?.toString() || "",
+          id: feature.id?.toString() || "",
           properties: feature.properties || {},
           geometry: feature.geometry,
           coordinate:
@@ -189,15 +184,16 @@ watch(
                   number,
                 ]),
         };
-        if (selectedObject.type === "room") {
-          const building = BuildingsGeoJSON.features.find((bld) =>
-            layerType === "room"
-              ? bld.properties.id === feature.properties.building_id
+        if (selectedObject.type === "Room") {
+          if(selectedObject.properties?.type === "Passage") return;
+          const building = typeMap.value.Building.find((bld) =>
+            layerType === "Room"
+              ? feature.properties?.ancestors?.includes(bld.id)
               : false,
           );
           if (building) {
             selectedObject.building = {
-              type: "building",
+              type: "Building",
               id: building.properties.id || "",
               properties: building.properties || {},
               coordinate: centroid(building.geometry as GeoJSON.MultiPolygon)
@@ -205,7 +201,7 @@ watch(
             };
           } else {
             selectedObject.building = {
-              type: "building",
+              type: "Building",
               id: "",
               properties: {},
               coordinate: [0, 0],
@@ -237,17 +233,17 @@ watch(
         center: newVal.coordinate,
         zoom: Math.max(
           mapState.zoom.value,
-          newVal.type === "room"
+          newVal.type === "Room"
             ? ZOOM_LEVELS.BUILDING_DETAILS
             : ZOOM_LEVELS.ALL_BUILDINGS,
         ),
       });
-      if (newVal.type === "room") {
-        mapState.floor.value = Number(newVal.properties.floor) || 1;
+      if (newVal.type === "Room") {
+        mapState.floor.value = getFloorForFeature(newVal) || new FloorLevel(1);
       }
     }
   },
 );
 
-const style = useMapStyle(shouldUseExtrusion, language, isDesktop);
+const style = useMapStyle(shouldUseExtrusion, isDesktop);
 </script>

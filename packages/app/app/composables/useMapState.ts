@@ -4,25 +4,27 @@ import type { PlaceInputValue } from "~/components/PlaceInput.vue";
 interface SelectedObjectBase {
   type: string;
   id: string;
-  properties: Record<string, unknown>;
+  // biome-ignore lint/suspicious/noExplicitAny: 推論できない
+  properties: Record<string, any>;
   coordinate: [number, number];
   geometry: GeoJSON.Geometry;
 }
 
 interface SelectedBuilding extends SelectedObjectBase {
-  type: "building";
+  type: "Building";
 }
 
 interface SelectedGate extends SelectedObjectBase {
-  type: "gate";
+  type: "Gate";
 }
 
 interface SelectedRoom extends SelectedObjectBase {
-  type: "room";
+  type: "Room";
   building: {
-    type: "building";
+    type: "Building";
     id: string;
-    properties: Record<string, unknown>;
+    // biome-ignore lint/suspicious/noExplicitAny: 推論できない
+    properties: Record<string, any>;
     coordinate: [number, number];
   };
 }
@@ -35,9 +37,10 @@ const userLocation = useGeolocation({
   maximumAge: 0,
   timeout: Infinity,
 });
+
 const mapState = {
   map: ref<maplibregl.Map>(),
-  floor: ref(1),
+  floor: ref<FloorLevel>(new FloorLevel(1)) as Ref<FloorLevel>,
   zoom: ref(15),
   pitch: ref(0),
   center: ref(MAP_INITIAL_CENTER as [number, number]),

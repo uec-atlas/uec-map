@@ -28,17 +28,8 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    assetsInclude: ["**/*.pmtiles"],
     plugins: [
       !isUMD && dts({ insertTypesEntry: true }),
-      viteStaticCopy({
-        targets: [
-          {
-            src: "src/assets/*.pmtiles",
-            dest: "assets",
-          },
-        ],
-      }),
     ],
   };
 });

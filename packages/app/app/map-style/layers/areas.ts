@@ -1,15 +1,22 @@
-import { UEC_MAP_SOURCE_ID } from "@e-chan1007/uec-map-sdk";
-import { withLanguageSuffixFactory } from "../utils/lang";
-import { defineLayerFactory } from "../utils/layer";
-import { ZOOM_LEVELS } from "../theme/zoom";
+import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
+import type { ExpressionSpecification } from "maplibre-gl";
 import type { ColorMode } from "../theme/colors";
+import { ZOOM_LEVELS } from "../theme/zoom";
+import { defineLayerFactory } from "../utils/layer";
+import { nameField } from "../utils/lang";
+
+const areaFilter = [
+  "in",
+  ["get", "type"],
+  ["literal", ["Site", "Area"]],
+] as const satisfies ExpressionSpecification;
 
 export const createAreaLayers = defineLayerFactory((mode: ColorMode) => [
   {
     id: "areas_outline",
     type: "line",
     source: UEC_MAP_SOURCE_ID,
-    "source-layer": "areas",
+    filter: areaFilter,
     minzoom: 0,
     paint: {
       "line-color": mode === "dark" ? "#444444" : "#cccccc",
@@ -20,7 +27,7 @@ export const createAreaLayers = defineLayerFactory((mode: ColorMode) => [
     id: "areas",
     type: "fill",
     source: UEC_MAP_SOURCE_ID,
-    "source-layer": "areas",
+    filter: areaFilter,
     minzoom: 0,
     paint: { "fill-color": mode === "dark" ? "#222222" : "#fafafa" },
   },
@@ -28,17 +35,15 @@ export const createAreaLayers = defineLayerFactory((mode: ColorMode) => [
 
 export const createAreaLabelLayers = defineLayerFactory(
   (language: string, mode: ColorMode) => {
-    const withLanguageSuffix = withLanguageSuffixFactory(language);
-
     return {
       id: "areas_label",
       type: "symbol",
       source: UEC_MAP_SOURCE_ID,
-      "source-layer": "areas_label",
+      filter: areaFilter,
       minzoom: 0,
       maxzoom: ZOOM_LEVELS.MAIN_BUILDING,
       layout: {
-        "text-field": ["get", withLanguageSuffix("name")],
+        "text-field": nameField(language),
         "text-size": 16,
         "text-max-width": 12,
       },

@@ -19,21 +19,30 @@
           <div class="flex flex-col gap-2 py-4">
             <span class="text-sm text-muted-foreground" v-if="selectedObject">
               {{ areaLabel }}
-              {{ building?.properties.name || "" }}
-              {{ selectedObject.type === "room"
-                ? formatFloorNumber(selectedObject.properties.floor)
+              {{ building && getNameOfSpatialEntity(building) }}
+              {{ selectedObject.type === "Room"
+                ? getFloorForFeature(selectedObject)?.labelWithSuffix
                 : "" }}
             </span>
             <h2 class="text-xl font-semibold">
-              {{ selectedObject?.properties.name || "名称未設定の地点" }}
+              {{  getNameOfSpatialEntity(selectedObject!, "名称未設定の地点") }}
             </h2>
             <span
               class="text-sm text-muted-foreground"
-              v-if="selectedObject?.properties.altname"
-              >{{ selectedObject?.properties.altname }}</span
+              v-if="getAltNameOfSpatialEntity(selectedObject!)"
+              >{{ getAltNameOfSpatialEntity(selectedObject!) }}</span
+            >
+            <span
+              class="text-sm text-muted-foreground"
+              v-if="parentFacility"
+              >{{ getNameOfSpatialEntity(parentFacility) }}</span
             >
           </div>
         </header>
+        <MapDrawerOpeningHours
+          v-if="openingSpec"
+          :spec="openingSpec"
+        />
         <UButton
           block
           class="cursor-pointer"
@@ -59,6 +68,7 @@ const {
   pathFindTo: _externalFrom,
   padding,
 } = useMapState();
+const { idMap, typeMap, getAreaKeyForFeature, getFloorForFeature } = useSpatialEntries();
 const drawerContainer = useTemplateRef<HTMLElement>("drawerContainer");
 const isDesktop = useDesktopQuery();
 const selectedObject = ref(_selectedObject.value);
@@ -71,26 +81,51 @@ const drawerOpen = computed({
   },
 });
 
+const parentFacility = computed(() => {
+  if (!selectedObject.value) return null;
+
+  const parents = [
+    selectedObject.value.properties.containedInPlace,
+    ...selectedObject.value.properties.isPartOf || [],
+  ].filter((id): id is string => !!id);
+  for(const parentId of parents) {
+    const parentFeature = idMap.value.get(parentId);
+    if (parentFeature && parentFeature.properties?.type === "Facility") {
+      return parentFeature;
+    }
+  }
+  return null;
+});
+
+const openingSpec = computed(() => {
+  if (!selectedObject.value) return null;
+  return selectedObject.value.properties.openingHoursSpecification || parentFacility.value?.properties?.openingHoursSpecification || null;
+});
+
 watch(
   () => _selectedObject.value,
   (newVal) => {
     if (newVal === null) return;
     selectedObject.value = newVal;
+    unescapeProperties(selectedObject.value);
+    if(selectedObject.value.type === "Room") {
+      unescapeProperties(selectedObject.value.building);
+    }
   },
 );
 
 const executeRouteSearch = () => {
   if (!selectedObject.value) return;
-  if (selectedObject.value.type === "room") {
+  if (selectedObject.value.type === "Room") {
     _externalFrom.value = {
       id: selectedObject.value.building.properties.id,
-      label: selectedObject.value.building.properties.name,
+      label: getNameOfSpatialEntity(selectedObject.value.building),
       value: selectedObject.value.building,
     } as unknown as PlaceInputValue;
   } else {
     _externalFrom.value = {
       id: selectedObject.value.properties.id,
-      label: selectedObject.value.properties.name,
+      label: getNameOfSpatialEntity(selectedObject.value),
       value: selectedObject.value,
     } as unknown as PlaceInputValue;
   }
@@ -98,37 +133,28 @@ const executeRouteSearch = () => {
 };
 
 const building = computed(() => {
-  if (selectedObject.value?.type !== "room") return null;
+  if (selectedObject.value?.type !== "Room") return null;
   return selectedObject.value.building;
 });
 
-const area = computed(() => {
-  if (!selectedObject.value) return "";
-  return (
-    (selectedObject.value.properties.area as string) ||
-    (building.value?.properties.area as string) ||
-    "unknown"
-  );
-});
+const area = computed(() =>
+  getAreaKeyForFeature(selectedObject.value)
+);
 
 const areaLabel = computed(() => {
-  switch (area.value) {
-    case "east":
-      return "東地区";
-    case "west":
-      return "西地区";
-    case "100th":
-      return "100周年記念キャンパス";
-    default:
-      return "不明な地区";
+  for(const areaFeature of [...typeMap.value.Area, ...typeMap.value.Site]) {
+    if (selectedObject.value?.properties.ancestors.includes(areaFeature.properties.id)) {
+      return getNameOfSpatialEntity(areaFeature);
+    }
   }
+  return "不明な場所";
 });
 
 const mode = useColorMode();
 const areaColor = computed(() => {
   return mode.value === "dark"
-    ? (DARK_BUILDING_AREA_COLOR[area.value] ?? "#aaaaaa")
-    : (BUILDING_AREA_COLOR[area.value] ?? "#222222");
+    ? (area.value ? DARK_BUILDING_AREA_COLOR[AREA_ID_MAP[area.value]] : "#aaaaaa")
+    : (area.value ? BUILDING_AREA_COLOR[AREA_ID_MAP[area.value]] : "#222222");
 });
 
 watch(
