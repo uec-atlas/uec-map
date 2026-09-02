@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2024-09-19",
+  compatibilityDate: "2026-09-01",
   devtools: { enabled: true },
   nitro: {
     preset: "cloudflare_module",
@@ -12,7 +12,6 @@ export default defineNuxtConfig({
   modules: [
     "@vueuse/nuxt",
     "@nuxt/ui",
-    "nuxt-maplibre",
     [
       "unplugin-icons/nuxt",
       {
@@ -24,7 +23,13 @@ export default defineNuxtConfig({
     dirs: ["~/composables", "~/constants", "~/models", "~/utils"],
   },
   css: ["@/assets/style.css"],
+  features: {
+    inlineStyles: false,
+  },
   routeRules: {
+    "/": {
+      ssr: false,
+    },
     "/ogp.png": {
       headers: {
         "Cache-Control": "public, max-age=31536000, immutable",
@@ -41,11 +46,13 @@ export default defineNuxtConfig({
       include: [
         "@indoorequal/vue-maplibre-gl",
         "@turf/turf",
-        "maplibre-gl", // CJS
         "ngraph.graph",
         "ngraph.path",
         "rbush",
       ],
+    },
+    ssr: {
+      noExternal: ["maplibre-gl"],
     },
   },
 });

@@ -1,8 +1,9 @@
-import maplibregl, {
+import {
+  Map as MapLibreMap,
+  type MapOptions,
   type SourceSpecification,
   type StyleSpecification,
 } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
 
 export const UEC_MAP_SOURCE_ID = "uec-map";
 export const UEC_ATLAS_SPATIAL_URL =
@@ -62,21 +63,21 @@ export function buildMapStyle(
   };
 }
 
-export interface EmbedMapOptions extends Omit<maplibregl.MapOptions, "style"> {
+export interface EmbedMapOptions extends Omit<MapOptions, "style"> {
   data?: GeoJSON.FeatureCollection;
   style?: StyleSpecification;
 }
 
 export class EmbedMap {
   public data?: GeoJSON.FeatureCollection;
-  public map: maplibregl.Map;
+  public map: MapLibreMap;
 
   constructor(options: EmbedMapOptions) {
     const { data, style: userStyle, ...mapOptions } = options;
     const style = buildMapStyle(data, userStyle);
 
     this.data = data;
-    this.map = new maplibregl.Map({
+    this.map = new MapLibreMap({
       ...mapOptions,
       style: style,
       center: mapOptions.center || [139.7, 35.6],

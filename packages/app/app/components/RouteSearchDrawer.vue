@@ -16,7 +16,7 @@
     <template #title>
       <div class="flex flex-row items-center justify-between">
         <h2 class="flex flex-row items-center text-lg font-semibold gap-2">
-          <Icon name="material-symbols:navigation" class="text-primary"/>
+          <Icon name="material-symbols:navigation" class="text-primary" />
           <span>経路検索</span>
         </h2>
         <UButton
@@ -33,10 +33,10 @@
     <template #body>
       <section class="flex flex-col gap-4 items-start" ref="drawerContent">
         <UFormField label="出発地" class="w-full">
-          <PlaceInput v-model="placeFrom"/>
+          <PlaceInput v-model="placeFrom" />
         </UFormField>
         <UFormField label="目的地" class="w-full">
-          <PlaceInput v-model="placeTo"/>
+          <PlaceInput v-model="placeTo" />
         </UFormField>
         <UAlert
           v-if="searchError"
@@ -87,14 +87,14 @@
 </template>
 
 <script setup lang="ts">
-import type { PlaceInputValue } from "./PlaceInput.vue";
 import { bbox, length } from "@turf/turf";
+import type { PlaceInputValue } from "./PlaceInput.vue";
 
 const { map, pathFindTo, pathFindResult } = useMapState();
 
 const isDesktop = useDesktopQuery();
-const searchError = ref(false);
-const drawerOpen = ref(false);
+const searchError = shallowRef(false);
+const drawerOpen = shallowRef(false);
 const drawerContent = useTemplateRef<HTMLElement>("drawerContent");
 
 watch(
@@ -115,9 +115,9 @@ watch(drawerOpen, (newVal) => {
   }
 });
 
-const useWeight = ref(true);
-const placeFrom = ref<PlaceInputValue>();
-const placeTo = ref<PlaceInputValue>();
+const useWeight = shallowRef(true);
+const placeFrom = shallowRef<PlaceInputValue>();
+const placeTo = shallowRef<PlaceInputValue>();
 const distance = computed(() => {
   if (!pathFindResult.value) return null;
   return Math.ceil(length(pathFindResult.value, { units: "meters" }) / 10) * 10;

@@ -66,14 +66,31 @@ useHead({
     { rel: "manifest", href: "/manifest.webmanifest" },
     { rel: "apple-touch-icon", href: "/pwa-icon-192.png" },
     { rel: "icon", type: "image/svg+xml", href: "/pwa-icon.svg" },
-    { rel: "icon", type: "image/png", sizes: "192x192", href: "/pwa-icon-192.png" },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "192x192",
+      href: "/pwa-icon-192.png",
+    },
+    {
+      rel: "preload",
+      as: "fetch",
+      crossorigin: "anonymous",
+      href: "https://tile.openstreetmap.jp/data/planet/14/14542/6452.pbf",
+    },
+    {
+      rel: "preload",
+      as: "fetch",
+      crossorigin: "anonymous",
+      href: "https://tile.openstreetmap.jp/data/planet/14/14542/6453.pbf",
+    },
   ],
 });
 </script>
 
 <template>
   <UApp>
-    <NuxtPage/>
+    <NuxtPage />
   </UApp>
 </template>
 

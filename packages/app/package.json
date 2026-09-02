@@ -10,33 +10,32 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@indoorequal/vue-maplibre-gl": "^8.4.2",
-    "@nuxt/ui": "^4.9.0",
-    "@turf/turf": "^7.3.5",
+    "@indoorequal/vue-maplibre-gl": "^9.0.1",
+    "@nuxt/ui": "^4.11.0",
+    "@turf/turf": "^7.4.0",
     "@uec-atlas/uec-map-sdk": "workspace:*",
-    "@vueuse/nuxt": "^14.3.0",
-    "maplibre-gl": "^5.24.0",
+    "@vueuse/nuxt": "^14.4.0",
+    "maplibre-gl": "^6.6.0",
     "ngraph.graph": "^20.1.2",
     "ngraph.path": "^1.6.1",
-    "nuxt": "^4.4.8",
-    "nuxt-maplibre": "1.2.2",
+    "nuxt": "^4.5.2",
     "rbush": "^4.0.1",
-    "tailwindcss": "^4.3.1",
+    "tailwindcss": "^4.3.3",
     "unplugin-icons": "^23.0.1",
-    "vue": "^3.5.39",
-    "vue-router": "^5.1.0"
+    "vue": "^3.5.42",
+    "vue-router": "^5.3.0"
   },
   "devDependencies": {
     "@iconify-json/bi": "^1.2.7",
-    "@iconify-json/lucide": "^1.2.114",
+    "@iconify-json/lucide": "^1.2.128",
     "@iconify-json/map": "^1.2.2",
-    "@iconify-json/material-symbols": "^1.2.81",
+    "@iconify-json/material-symbols": "^1.2.90",
     "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/temaki": "^1.2.6",
     "@types/geojson": "^7946.0.16",
     "@types/rbush": "^4.0.0",
     "biome": "^0.3.3",
-    "sass-embedded": "^1.100.0",
+    "sass-embedded": "^1.103.1",
     "typescript": "^6.0.3"
   }
 }

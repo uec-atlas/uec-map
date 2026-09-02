@@ -2,8 +2,8 @@ import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
 import type { ExpressionSpecification } from "maplibre-gl";
 import type { ColorMode } from "../theme/colors";
 import { ZOOM_LEVELS } from "../theme/zoom";
-import { defineLayerFactory } from "../utils/layer";
 import { nameField } from "../utils/lang";
+import { defineLayerFactory } from "../utils/layer";
 
 const areaFilter = [
   "in",

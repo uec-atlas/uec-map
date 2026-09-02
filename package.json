@@ -5,9 +5,25 @@
     "app": "pnpm -F @uec-atlas/uec-map-app",
     "sdk": "pnpm -F @uec-atlas/uec-map-sdk",
     "dev": "pnpm -r --parallel run dev",
-    "build": "pnpm -r run build"
+    "build": "pnpm -r run build",
+    "lint": "biome check --write"
   },
+  "dependencies": {},
   "devDependencies": {
-    "@biomejs/biome": "^2.5.1"
+    "@biomejs/biome": "^2.5.11"
+  },
+  "engines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.20.0",
+      "onFail": "download"
+    }
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.25.0",
+      "onFail": "download"
+    }
   }
 }

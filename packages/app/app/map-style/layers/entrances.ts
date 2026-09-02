@@ -1,7 +1,7 @@
 import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
-import { defineLayerFactory } from "../utils/layer";
-import { ZOOM_LEVELS } from "../theme/zoom";
 import type { ColorMode } from "../theme/colors";
+import { ZOOM_LEVELS } from "../theme/zoom";
+import { defineLayerFactory } from "../utils/layer";
 
 export const createEntrancesLayers = defineLayerFactory((mode: ColorMode) => ({
   id: "entrances",

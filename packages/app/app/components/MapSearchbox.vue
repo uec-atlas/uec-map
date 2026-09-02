@@ -25,7 +25,7 @@
           >
             一致する結果が見つかりませんでした
           </div>
-          <span v-else/>
+          <span v-else />
         </template>
       </UCommandPalette>
     </div>
@@ -36,8 +36,8 @@
 import type { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
 
 const { selectedObject } = useMapState();
-const value = ref<CommandPaletteItem | null>(null);
-const searchTerm = ref("");
+const value = shallowRef<CommandPaletteItem | null>(null);
+const searchTerm = shallowRef("");
 
 watch(value, (newValue) => {
   if (!newValue) return;

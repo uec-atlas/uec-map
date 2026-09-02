@@ -5,9 +5,9 @@ import type {
   LayerSpecification,
 } from "maplibre-gl";
 import {
+  type ColorMode,
   getFillColorSpec,
   getFloorIconBgSpec,
-  type ColorMode,
 } from "../theme/colors";
 import {
   FLOOR_ICON_SPEC,

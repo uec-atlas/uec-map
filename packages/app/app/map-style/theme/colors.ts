@@ -15,18 +15,15 @@ export const BUILDING_CATEGORY_ICON_COLOR: Record<string, string> = {
 };
 
 export const FLOOR_ICON_BG_COLOR_SPEC: ExpressionSpecification = [
-  "case",
-  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "match",
+  ["get", "type"],
+  ["Classroom", "PracticeRoom"],
   "#0ca70e",
-  [
-    "all",
-    ["==", ["get", "type"], "Passage"],
-    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
-  ],
-  "#969696",
-  ["==", ["get", "type"], "Restroom"],
+  "Passage",
+  ["match", ["get", "category"], ["elevator", "stairs"], "#C8C8C8", "#EAEAEA"],
+  "Restroom",
   ["match", ["get", "gender"], "men", "#234ec7", "women", "#c72347", "#9527b1"],
-  ["==", ["get", "type"], "Facility"],
+  "Facility",
   [
     "match",
     ["get", "category"],
@@ -38,7 +35,7 @@ export const FLOOR_ICON_BG_COLOR_SPEC: ExpressionSpecification = [
     "#3abdf9",
     "#969696",
   ],
-  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  ["Room", "RoomSubZone"],
   [
     "match",
     ["get", "usage"],
@@ -60,20 +57,15 @@ export const FLOOR_ICON_BG_COLOR_SPEC: ExpressionSpecification = [
 ];
 
 export const ROOM_COLOR_SPEC: ExpressionSpecification = [
-  "case",
-  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "match",
+  ["get", "type"],
+  ["Classroom", "PracticeRoom"],
   "#B1E4B2",
-  [
-    "all",
-    ["==", ["get", "type"], "Passage"],
-    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
-  ],
-  "#C8C8C8",
-  ["==", ["get", "type"], "Passage"],
-  "#EAEAEA",
-  ["==", ["get", "type"], "Restroom"],
+  "Passage",
+  ["match", ["get", "category"], ["elevator", "stairs"], "#C8C8C8", "#EAEAEA"],
+  "Restroom",
   ["match", ["get", "gender"], "men", "#8DA2DB", "women", "#CE8D9B", "#AC8DCE"],
-  ["==", ["get", "type"], "Facility"],
+  "Facility",
   [
     "match",
     ["get", "category"],
@@ -85,7 +77,7 @@ export const ROOM_COLOR_SPEC: ExpressionSpecification = [
     "#84D4F9",
     "#969696",
   ],
-  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  ["Room", "RoomSubZone"],
   [
     "match",
     ["get", "usage"],
@@ -107,20 +99,15 @@ export const ROOM_COLOR_SPEC: ExpressionSpecification = [
 ];
 
 export const DARK_ROOM_COLOR_SPEC: ExpressionSpecification = [
-  "case",
-  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "match",
+  ["get", "type"],
+  ["Classroom", "PracticeRoom"],
   "#2f5035",
-  [
-    "all",
-    ["==", ["get", "type"], "Passage"],
-    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
-  ],
-  "#656565",
-  ["==", ["get", "type"], "Passage"],
-  "#777777",
-  ["==", ["get", "type"], "Restroom"],
+  "Passage",
+  ["match", ["get", "category"], ["elevator", "stairs"], "#656565", "#777777"],
+  "Restroom",
   ["match", ["get", "gender"], "men", "#3a5f88", "women", "#8a3f46", "#6b4a75"],
-  ["==", ["get", "type"], "Facility"],
+  "Facility",
   [
     "match",
     ["get", "category"],
@@ -132,7 +119,7 @@ export const DARK_ROOM_COLOR_SPEC: ExpressionSpecification = [
     "#134c72",
     "#333333",
   ],
-  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  ["Room", "RoomSubZone"],
   [
     "match",
     ["get", "usage"],
@@ -168,18 +155,15 @@ export const DARK_BUILDING_CATEGORY_ICON_COLOR: Record<string, string> = {
 };
 
 export const DARK_FLOOR_ICON_BG_COLOR_SPEC: ExpressionSpecification = [
-  "case",
-  ["in", ["get", "type"], ["literal", ["Classroom", "PracticeRoom"]]],
+  "match",
+  ["get", "type"],
+  ["Classroom", "PracticeRoom"],
   "#0b5a08",
-  [
-    "all",
-    ["==", ["get", "type"], "Passage"],
-    ["in", ["get", "category"], ["literal", ["elevator", "stairs"]]],
-  ],
-  "#4a4a4a",
-  ["==", ["get", "type"], "Restroom"],
+  "Passage",
+  ["match", ["get", "category"], ["elevator", "stairs"], "#4a4a4a", "#777777"],
+  "Restroom",
   ["match", ["get", "gender"], "men", "#12345f", "women", "#8a1b2b", "#6a2a86"],
-  ["==", ["get", "type"], "Facility"],
+  "Facility",
   [
     "match",
     ["get", "category"],
@@ -191,7 +175,7 @@ export const DARK_FLOOR_ICON_BG_COLOR_SPEC: ExpressionSpecification = [
     "#0f6fa0",
     "#4a4a4a",
   ],
-  ["in", ["get", "type"], ["literal", ["Room", "RoomSubZone"]]],
+  ["Room", "RoomSubZone"],
   [
     "match",
     ["get", "usage"],

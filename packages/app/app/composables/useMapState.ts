@@ -1,4 +1,8 @@
-import type { LngLatLike, PaddingOptions } from "maplibre-gl";
+import type {
+  LngLatLike,
+  Map as MapLibreMap,
+  PaddingOptions,
+} from "maplibre-gl";
 import type { PlaceInputValue } from "~/components/PlaceInput.vue";
 
 interface SelectedObjectBase {
@@ -39,7 +43,7 @@ const userLocation = useGeolocation({
 });
 
 const mapState = {
-  map: ref<maplibregl.Map>(),
+  map: shallowRef<MapLibreMap>(),
   floor: ref<FloorLevel>(new FloorLevel(1)) as Ref<FloorLevel>,
   zoom: ref(15),
   pitch: ref(0),

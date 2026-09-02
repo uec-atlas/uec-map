@@ -27,22 +27,22 @@
               }}
             </span>
             <h2 class="text-xl font-semibold">
-              {{ getNameOfSpatialEntity(selectedObject!, "名称未設定の地点") }}
+              {{ getNameOfSpatialEntity(selectedObject, "名称未設定の地点") }}
             </h2>
             <span
               class="text-sm text-muted-foreground"
-              v-if="getAltNameOfSpatialEntity(selectedObject!)"
-              >{{ getAltNameOfSpatialEntity(selectedObject!) }}</span
-            >
-            <span class="text-sm text-muted-foreground" v-if="parentFacility"
+              v-if="getAltNameOfSpatialEntity(selectedObject)"
               >{{
-              getNameOfSpatialEntity(parentFacility)
-            }}</span
+                getAltNameOfSpatialEntity(selectedObject)
+              }}</span
             >
+            <span class="text-sm text-muted-foreground" v-if="parentFacility">{{
+              getNameOfSpatialEntity(parentFacility)
+            }}</span>
           </div>
         </header>
         <div class="max-h-[50dvh] overflow-y-auto w-full">
-          <MapDrawerOpeningHours v-if="openingSpec" :spec="openingSpec"/>
+          <MapDrawerOpeningHours v-if="openingSpec" :spec="openingSpec" />
           <MapDrawerClassroomDetails
             v-if="
               selectedObject?.type === 'Room' &&
@@ -88,7 +88,7 @@ const { idMap, typeMap, getAreaKeyForFeature, getFloorForFeature } =
   useSpatialEntries();
 const drawerContainer = useTemplateRef<HTMLElement>("drawerContainer");
 const isDesktop = useDesktopQuery();
-const selectedObject = ref(_selectedObject.value);
+const selectedObject = shallowRef(_selectedObject.value);
 const drawerOpen = computed({
   get: () => _selectedObject.value !== null,
   set: (val: boolean) => {
@@ -128,10 +128,6 @@ watch(
   (newVal) => {
     if (newVal === null) return;
     selectedObject.value = newVal;
-    unescapeProperties(selectedObject.value);
-    if (selectedObject.value.type === "Room") {
-      unescapeProperties(selectedObject.value.building);
-    }
   },
 );
 

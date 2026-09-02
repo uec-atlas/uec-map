@@ -97,21 +97,30 @@
 </template>
 
 <script setup lang="ts">
-import { useMap } from "@indoorequal/vue-maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
+import { setMaxParallelImageRequests, setWorkerUrl } from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 
-import { ZOOM_LEVELS } from "~/map-style/theme/zoom";
+setWorkerUrl(workerUrl);
+setMaxParallelImageRequests(16);
+
+import { MglMap, MglMarker, useMap } from "@indoorequal/vue-maplibre-gl";
+
 import { centroid } from "@turf/turf";
+import { ZOOM_LEVELS } from "~/map-style/theme/zoom";
 
 const { paths, idMap, typeMap, getFloorForFeature } = useSpatialEntries();
 
 watch(
-  () => typeMap.value.BuildingEntrance,
-  (newVal) => {
-    if (newVal) {
-      initPathFinding(paths.features, typeMap.value.Building, typeMap.value.BuildingEntrance);
+  [() => typeMap.value.BuildingEntrance, () => paths.value],
+  ([newVal, pathsData]) => {
+    if (newVal && pathsData) {
+      initPathFinding(
+        pathsData.features,
+        typeMap.value.Building,
+        typeMap.value.BuildingEntrance,
+      );
     }
-  }
+  },
 );
 
 const mapInstance = useMap();
@@ -261,3 +270,157 @@ watch(
 
 const style = useMapStyle(shouldUseExtrusion, isDesktop);
 </script>
+
+<style>
+.maplibregl-map {
+  overflow: hidden;
+  position: relative;
+  -webkit-tap-highlight-color: rgb(0 0 0 / 0);
+}
+.maplibregl-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.maplibregl-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.maplibregl-canvas-container.maplibregl-interactive {
+  cursor: grab;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+.maplibregl-canvas-container.maplibregl-interactive.maplibregl-track-pointer {
+  cursor: pointer;
+}
+.maplibregl-canvas-container.maplibregl-interactive:active {
+  cursor: grabbing;
+}
+.maplibregl-canvas-container.maplibregl-touch-zoom-rotate,
+.maplibregl-canvas-container.maplibregl-touch-zoom-rotate .maplibregl-canvas {
+  touch-action: pan-x pan-y;
+}
+.maplibregl-canvas-container.maplibregl-touch-drag-pan,
+.maplibregl-canvas-container.maplibregl-touch-drag-pan .maplibregl-canvas {
+  touch-action: pinch-zoom;
+}
+.maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan,
+.maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan
+  .maplibregl-canvas {
+  touch-action: none;
+}
+.maplibregl-crosshair,
+.maplibregl-crosshair .maplibregl-interactive,
+.maplibregl-crosshair .maplibregl-interactive:active {
+  cursor: crosshair;
+}
+.maplibregl-boxzoom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  background: #fff;
+  border: 2px dotted #202020;
+  opacity: 0.5;
+}
+
+.maplibregl-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+  transition: opacity 0.2s;
+}
+.maplibregl-marker-draggable {
+  cursor: grab;
+}
+
+.maplibregl-ctrl-bottom-right {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.maplibregl-ctrl {
+  clear: both;
+  pointer-events: auto;
+  transform: translate(0, 0);
+}
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl {
+  margin: 0 10px 10px 0;
+  float: right;
+}
+
+.maplibregl-ctrl.maplibregl-ctrl-attrib {
+  padding: 0 5px;
+  background-color: rgb(255 255 255 / 0.7);
+  margin: 0;
+  font-size: 11px;
+}
+.maplibregl-ctrl-attrib a {
+  color: rgb(0 0 0 / 0.75);
+  text-decoration: none;
+}
+.maplibregl-ctrl-attrib a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+.maplibregl-attrib-empty {
+  display: none;
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  height: 24px;
+  padding: 0;
+  margin: 10px;
+  position: relative;
+  background-color: transparent;
+  border-radius: 12px;
+  box-sizing: content-box;
+}
+.maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner {
+  display: none;
+}
+.maplibregl-ctrl-attrib.maplibregl-compact-show {
+  padding: 0 28px 0 8px;
+  background-color: #fff;
+  visibility: visible;
+  display: flex;
+  align-items: center;
+}
+.maplibregl-ctrl-attrib.maplibregl-compact-show .maplibregl-ctrl-attrib-inner {
+  display: block;
+}
+
+.maplibregl-ctrl-attrib-button {
+  cursor: pointer;
+  position: absolute;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 20 20'%3E%3Cpath fill='%23333' fill-rule='evenodd' d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: rgb(255 255 255 / 0.8);
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  outline: none;
+  top: 0;
+  right: 0;
+  border: 0;
+}
+
+.maplibregl-ctrl-attrib summary.maplibregl-ctrl-attrib-button {
+  appearance: none;
+  list-style: none;
+}
+.maplibregl-ctrl-attrib
+  summary.maplibregl-ctrl-attrib-button::-webkit-details-marker {
+  display: none;
+}
+</style>

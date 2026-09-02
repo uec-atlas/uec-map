@@ -1,6 +1,6 @@
 import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
 import type { ExpressionSpecification, LayerSpecification } from "maplibre-gl";
-import { getFillColorSpec, type ColorMode } from "../theme/colors";
+import { type ColorMode, getFillColorSpec } from "../theme/colors";
 import { ZOOM_LEVELS } from "../theme/zoom";
 import { defineLayerFactory } from "../utils/layer";
 

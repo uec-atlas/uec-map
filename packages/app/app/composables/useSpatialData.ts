@@ -1,8 +1,4 @@
-import { ref, computed } from "vue";
-import paths from "@/assets/paths.json";
-import { UEC_ATLAS_SPATIAL_URL } from "@uec-atlas/uec-map-sdk";
-import { centerOfMass } from "@turf/turf";
-import type { Feature, FeatureCollection } from "geojson";
+import type { Feature } from "geojson";
 
 export const SPATIAL_CLASSES = {
   SpatialEntity: ["Site", "Area", "BuildingEntrance", "Storey", "Structure"],
@@ -51,48 +47,48 @@ interface SpatialProperty {
   containedInPlace?: string;
 }
 
-function traverseParentFeatures(
-  feature: GeoJSON.Feature,
-  data: FeatureCollection,
-): GeoJSON.Feature[] {
-  const parentId = feature.properties?.containedInPlace;
-  if (!parentId) return [];
-  const parentFeature = data.features.find((f) => f.id === parentId);
-  if (!parentFeature) return [];
-  return [parentFeature, ...traverseParentFeatures(parentFeature, data)];
-}
-
-const data = ref<FeatureCollection | null>(null);
-
-$fetch<FeatureCollection>(UEC_ATLAS_SPATIAL_URL).then((d) => {
-  for (const feature of d.features) {
-    if (!feature.properties) continue;
-    feature.properties.ancestors = traverseParentFeatures(feature, d).map(
-      (f) => f.id,
-    );
-  }
-  data.value = d;
-});
-
 export const useSpatialEntries = () => {
+  const { data } = useFetch("/api/map", {
+    server: false,
+    lazy: true,
+    deep: false,
+  });
+  const geojson = computed(() => data.value?.geojson ?? null);
+  const buildingCentroids = computed(() => data.value?.buildingCentroids ?? []);
+  const floorCentroids = computed(() => data.value?.floorCentroids ?? []);
+  const paths = computed(() => data.value?.paths ?? null);
+
+  const idMap = computed(() => {
+    const map = new Map<string, Feature>();
+    if (!geojson.value) return map;
+    for (const feature of geojson.value.features) {
+      if (feature.id) map.set(String(feature.id), feature);
+    }
+    return map;
+  });
+
   const typeMap = computed(() => {
+    if (!geojson.value)
+      return Object.fromEntries(
+        Object.entries(SPATIAL_CLASSES).flatMap(([_parent, children]) =>
+          children.map((child) => [
+            child,
+            [] as Feature<GeoJSON.Geometry, SpatialProperty>[],
+          ]),
+        ),
+      ) as Record<
+        SpatialEntityType,
+        Feature<GeoJSON.Geometry, SpatialProperty>[]
+      >;
+
     const map = new Map<SpatialEntityType, Set<Feature>>();
     for (const type of Object.entries(SPATIAL_CLASSES).flat().flat()) {
-      if (!map.has(type as SpatialEntityType)) {
-        map.set(type as SpatialEntityType, new Set());
-      }
+      map.set(type as SpatialEntityType, new Set());
     }
-    for (const feature of data.value?.features || []) {
+
+    for (const feature of geojson.value.features) {
       if (!feature.properties) continue;
-      feature.properties.id = feature.id?.toString() || "";
-
-      if (feature.properties.amenities) {
-        for (const amenity of feature.properties.amenities) {
-          feature.properties[`amenity:${amenity.propertyID}`] = true;
-        }
-      }
-
-      const typeQueue = [feature.properties.type] as string[];
+      const typeQueue = [(feature.properties as { type: string }).type];
       while (typeQueue.length > 0) {
         const currentType = typeQueue.pop() as keyof typeof SPATIAL_CLASSES;
         map.get(currentType)?.add(feature);
@@ -101,6 +97,7 @@ export const useSpatialEntries = () => {
         }
       }
     }
+
     return Object.fromEntries(
       [...map.entries()].map(([k, v]) => [k, Array.from(v)]),
     ) as Record<
@@ -109,67 +106,21 @@ export const useSpatialEntries = () => {
     >;
   });
 
-  const buildingCentroids = computed(
-    () =>
-      [
-        typeMap.value.Structure.filter(
-          (f) => f.properties.type === "Structure",
-        ),
-        typeMap.value.Building,
-      ]
-        .flat()
-        .map((building) => {
-          try {
-            return centerOfMass(building, { properties: building.properties });
-          } catch {
-            return null;
-          }
-        })
-        .filter((v): v is NonNullable<typeof v> => !!v) ?? [],
-  );
-
-  const floorCentroids = computed(
-    () =>
-      [
-        ...(typeMap.value.Room ?? []),
-        ...(typeMap.value.Facility ?? []),
-        ...(typeMap.value.Passage ?? []),
-      ]
-        .map((storey) => {
-          try {
-            return centerOfMass(storey, { properties: storey.properties });
-          } catch {
-            return null;
-          }
-        })
-        .filter((v): v is NonNullable<typeof v> => !!v) ?? [],
-  );
-
-  const idMap = computed(() => {
-    const map = new Map<string, GeoJSON.Feature>();
-    if (!data.value) return map;
-    for (const feature of data.value.features) {
-      const id = feature.properties?.id;
-      if (id) {
-        map.set(id, feature);
-      }
-    }
-    return map;
-  });
-
   const getAreaKeyForFeature = (
     feature: {
       properties?: { ancestors?: string[]; intersectsPlace?: string[] };
     } | null,
   ): AreaKey | null => {
-    const targetAncestors = [...(feature?.properties?.ancestors ?? [])];
-    for (const intersectId of feature?.properties?.intersectsPlace ?? []) {
+    if (!feature?.properties?.ancestors) return null;
+
+    const targetAncestors = [...feature.properties.ancestors];
+    for (const intersectId of feature.properties.intersectsPlace ?? []) {
       targetAncestors.push(
         intersectId,
         ...(idMap.value.get(intersectId)?.properties?.ancestors ?? []),
       );
     }
-    if (!feature?.properties?.ancestors) return null;
+
     for (const [areaKey, areaId] of Object.entries(AREA_ID_MAP)) {
       if (targetAncestors.includes(areaId)) {
         return areaKey as AreaKey;
@@ -192,11 +143,11 @@ export const useSpatialEntries = () => {
   };
 
   return {
-    data,
+    geojson,
     buildingCentroids,
     floorCentroids,
     typeMap,
-    paths: paths as FeatureCollection<GeoJSON.LineString>,
+    paths,
     idMap,
     getAreaKeyForFeature,
     getFloorForFeature,

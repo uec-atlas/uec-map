@@ -1,9 +1,9 @@
 import { UEC_MAP_SOURCE_ID } from "@uec-atlas/uec-map-sdk";
 import type { ExpressionSpecification, LayerSpecification } from "maplibre-gl";
 import {
+  type ColorMode,
   getBuildingAreaColor,
   getBuildingTypeIconColor,
-  type ColorMode,
 } from "../theme/colors";
 import {
   BUILDING_ICONS,

@@ -31,7 +31,7 @@ export const useMapStyle = (
     const mode = useColorMode().value as ColorMode;
 
     const {
-      data: spatialData,
+      geojson: spatialData,
       paths,
       buildingCentroids,
       floorCentroids,
@@ -57,12 +57,14 @@ export const useMapStyle = (
       sources: {
         osm: {
           type: "vector",
-          url: "https://tile.openstreetmap.jp/data/planet.json",
+          tiles: ["https://tile.openstreetmap.jp/data/planet/{z}/{x}/{y}.pbf"],
+          minzoom: 0,
+          maxzoom: 14,
           attribution: "&copy; OpenStreetMap contributors",
         },
         paths: {
           type: "geojson",
-          data: paths,
+          data: paths.value ?? { type: "FeatureCollection", features: [] },
         },
         buildingCentroids: {
           type: "geojson",
